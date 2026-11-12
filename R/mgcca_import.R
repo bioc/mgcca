@@ -42,7 +42,7 @@
 #' X <- list(methylation = num(X1, 1:10), clinical = num(X2), other = num(X3))
 #'
 #' h5 <- tempfile(fileext = ".h5")
-#' desc <- mgcca_import_hdf5(X, filename = h5, overwriteFile = TRUE)
+#' desc <- mgccaImportHDF5(X, filename = h5, overwriteFile = TRUE)
 #' desc$group
 #' desc$datasets
 #'
@@ -50,8 +50,8 @@
 #' file.exists(desc$filename)
 #' unlink(h5)
 #' @export
-mgcca_import_hdf5 <- function(x, filename, group = "MGCCA_IN", datasets = NULL,
-                              overwriteDataset = FALSE, overwriteFile = FALSE) {
+mgccaImportHDF5 <- function(x, filename, group = "MGCCA_IN", datasets = NULL,
+                            overwriteDataset = FALSE, overwriteFile = FALSE) {
 
     # ---- (a) already an HDF5 file: use as-is -------------------------------
     if (is.character(x) && length(x) == 1L) {
@@ -59,7 +59,7 @@ mgcca_import_hdf5 <- function(x, filename, group = "MGCCA_IN", datasets = NULL,
             stop("'x' looks like an HDF5 path but the file does not exist: ", x)
         ds <- datasets
         if (is.null(ds)) {
-            .mgcca_refuse_held_file(x, "mgcca_import_hdf5")
+            .mgcca_refuse_held_file(x, "mgccaImportHDF5")
             ds <- BigDataStatMeth::bdgetDatasetsList_hdf5(filename = x, group = group)
         }
         # Release any HDF5 handle opened while inspecting the file before
@@ -101,7 +101,7 @@ mgcca_import_hdf5 <- function(x, filename, group = "MGCCA_IN", datasets = NULL,
         m <- src$get(sel[k])
         if (is.null(rownames(m)))
             stop("table '", nms[k], "' has no rownames (individual IDs required)")
-        .mgcca_refuse_held_file(filename, "mgcca_import_hdf5")
+        .mgcca_refuse_held_file(filename, "mgccaImportHDF5")
         hm <- BigDataStatMeth::hdf5_create_matrix(
             filename = filename,
             dataset  = paste0(group, "/", nms[k]),
@@ -114,7 +114,7 @@ mgcca_import_hdf5 <- function(x, filename, group = "MGCCA_IN", datasets = NULL,
     }
 
     # Release every HDF5 handle this import opened before returning. The caller
-    # (mgcca(), mgcca_sensitivity()) reopens the same file read-write, and on
+    # (mgcca(), mgccaSensitivity()) reopens the same file read-write, and on
     # Windows a handle still open in this process makes that reopen fail with
     # "file is in use by another process". A no-op where nothing is open.
     suppressMessages(try(BigDataStatMeth::hdf5_close_all(), silent = TRUE))
@@ -147,11 +147,11 @@ mgcca_import_hdf5 <- function(x, filename, group = "MGCCA_IN", datasets = NULL,
         return(list(names = "exprs",
                     get = function(j) dbl(t(Biobase::exprs(x)))))
 
-    stop("unsupported input type for mgcca_import_hdf5: ", class(x)[1])
+    stop("unsupported input type for mgccaImportHDF5: ", class(x)[1])
 }
 
 # Eager variant: coerce a supported input into a named list of all tables.
-# Used where every table is needed at once (e.g. mgcca_permtest()).
+# Used where every table is needed at once (e.g. mgccaPermtest()).
 .mgcca_as_tables <- function(x) {
     src <- .mgcca_table_source(x)
     nms <- src$names

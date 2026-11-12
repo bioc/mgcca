@@ -1,6 +1,6 @@
 # ---- one HDF5 file held open for the whole of a reliability analysis -------
 #
-# `mgcca_sensitivity()` and `mgcca_stability()` touch their file through several
+# `mgccaSensitivity()` and `mgccaStability()` touch their file through several
 # C++ entry points in a row, and each of them opens the file, does its job and
 # closes it again. Two consecutive calls are therefore a close followed by a
 # reopen, and BigDataStatMeth runs a read-only pre-flight probe on every open
@@ -32,7 +32,7 @@
     if (!is.null(.mgcca_held_file$path))
         stop(.mgcca_nested_file_error(file[1]))
     handle <- mgcca_hold_file_rcpp(file[1])
-    .mgcca_held_file$path   <- file[1]
+    .mgcca_held_file$path   <- normalizePath(file[1], mustWork = FALSE)
     .mgcca_held_file$handle <- handle
     # A garbage-collection backstop only. The contract is the caller's
     # on.exit(); this catches a handle whose owner never got to run it.

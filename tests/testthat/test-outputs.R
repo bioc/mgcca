@@ -44,7 +44,7 @@ out_fit <- function(fixture = "mgcca_subset.rds", method = "penalized",
 }
 
 # The read-only fixture, built once and reused. Tests that only call
-# mgcca_results() on the descriptor cannot disturb each other.
+# mgccaResults() on the descriptor cannot disturb each other.
 .out_cache <- new.env(parent = emptyenv())
 
 out_shared <- function() {
@@ -55,7 +55,7 @@ out_shared <- function() {
 # The full collection off that fixture. Reading every component back is itself
 # expensive, and it is the same object every time it is asked for.
 out_full <- function() {
-  if (is.null(.out_cache$full)) .out_cache$full <- mgcca_results(out_shared()$desc)
+  if (is.null(.out_cache$full)) .out_cache$full <- mgccaResults(out_shared()$desc)
   .out_cache$full
 }
 
@@ -67,11 +67,11 @@ OBJ_ALL <- c("Y", "blocks_present", "corsY", "scores", "pval.cor", "weights",
 
 ## ---- the argument exists -----------------------------------------------------
 
-test_that("mgcca() and mgcca_results() take an outputs argument", {
+test_that("mgcca() and mgccaResults() take an outputs argument", {
   expect_true("outputs" %in% names(formals(mgcca)))
-  expect_true("outputs" %in% names(formals(mgcca_results)))
+  expect_true("outputs" %in% names(formals(mgccaResults)))
   expect_null(eval(formals(mgcca)$outputs))          # default = everything
-  expect_null(eval(formals(mgcca_results)$outputs))
+  expect_null(eval(formals(mgccaResults)$outputs))
 })
 
 
@@ -81,14 +81,14 @@ test_that("outputs = NULL collects every component, as it always has", {
   f <- out_shared()
   on.exit(try(BigDataStatMeth::hdf5_close_all(), silent = TRUE), add = TRUE)
 
-  legacy <- mgcca_results(f$desc)                       # no outputs argument
-  full   <- mgcca_results(f$desc, outputs = NULL)
+  legacy <- mgccaResults(f$desc)                       # no outputs argument
+  full   <- mgccaResults(f$desc, outputs = NULL)
   expect_identical(full, legacy)
   expect_identical(names(full), OBJ_ALL)
   expect_null(attr(full, "outputs"))                   # no new attribute either
 
   # asking for everything by name is the same object as asking for nothing
-  every <- mgcca_results(f$desc, outputs = OUT_ALL)
+  every <- mgccaResults(f$desc, outputs = OUT_ALL)
   for (nm in OBJ_ALL) expect_identical(every[[nm]], legacy[[nm]])
 })
 
@@ -114,7 +114,7 @@ test_that("a subset returns the requested components, identical to the full ones
   on.exit(try(BigDataStatMeth::hdf5_close_all(), silent = TRUE), add = TRUE)
   full <- out_full()
 
-  sub <- mgcca_results(f$desc, outputs = c("Y", "weights", "eig"))
+  sub <- mgccaResults(f$desc, outputs = c("Y", "weights", "eig"))
   expect_s3_class(sub, "mgcca")
   expect_identical(names(sub), OBJ_ALL)                # shape is preserved
   expect_identical(sub$Y,       full$Y)
@@ -130,7 +130,7 @@ test_that("every single component can be asked for on its own and matches", {
   on.exit(try(BigDataStatMeth::hdf5_close_all(), silent = TRUE), add = TRUE)
   full <- out_full()
   for (i in seq_along(OUT_ALL)) {
-    one <- mgcca_results(f$desc, outputs = OUT_ALL[i])
+    one <- mgccaResults(f$desc, outputs = OUT_ALL[i])
     expect_identical(one[[OBJ_ALL[i]]], full[[OBJ_ALL[i]]])
     expect_true(all(vapply(setdiff(OBJ_ALL, OBJ_ALL[i]),
                            function(nm) is.null(one[[nm]]), logical(1))))
@@ -162,17 +162,17 @@ test_that("a component that is not requested is not read from the file", {
   ds <- f$desc$datasets[1]
   path <- paste0("FINAL_RESULTS/corsY/", ds)
 
-  full_before <- mgcca_results(f$desc)                 # works while it is there
+  full_before <- mgccaResults(f$desc)                 # works while it is there
   expect_false(is.null(full_before$corsY))
 
   BigDataStatMeth::hdf5_close_all()
   BigDataStatMeth::hdf5_remove(f$h5, path)             # take corsY away
 
   # the full collection now fails on exactly that dataset ...
-  expect_error(mgcca_results(f$desc))
+  expect_error(mgccaResults(f$desc))
   # ... while a subset that never asks for it still succeeds, and returns the
   # same Y as before.
-  sub <- mgcca_results(f$desc, outputs = "Y")
+  sub <- mgccaResults(f$desc, outputs = "Y")
   expect_identical(sub$Y, full_before$Y)
 })
 
@@ -196,7 +196,7 @@ test_that("the read plan lists exactly the components asked for", {
 test_that("an unknown output name is an error, not a silent drop", {
   f <- out_shared()
   on.exit(try(BigDataStatMeth::hdf5_close_all(), silent = TRUE), add = TRUE)
-  expect_error(mgcca_results(f$desc, outputs = c("Y", "Ynot")), "Ynot")
-  expect_error(mgcca_results(f$desc, outputs = character(0)), "at least one")
-  expect_error(mgcca_results(f$desc, outputs = 1:3), "character")
+  expect_error(mgccaResults(f$desc, outputs = c("Y", "Ynot")), "Ynot")
+  expect_error(mgccaResults(f$desc, outputs = character(0)), "at least one")
+  expect_error(mgccaResults(f$desc, outputs = 1:3), "character")
 })

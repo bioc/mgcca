@@ -284,7 +284,7 @@
         return(list(assay = colnames(SummarizedExperiment::assay(x))))
     if (methods::is(x, "ExpressionSet"))
         return(list(exprs = colnames(Biobase::exprs(x))))
-    stop("unsupported input type for mgcca_audit: ", class(x)[1L],
+    stop("unsupported input type for mgccaAudit: ", class(x)[1L],
          ". Give it an availability matrix, the block object mgcca() would ",
          "fit, or the path/descriptor of an HDF5 file holding the blocks.",
          call. = FALSE)
@@ -313,7 +313,7 @@
         return(list(availability = .mgcca_av_matrix(data),
                     source = "availability table", hdf5 = NULL))
 
-    ## HDF5-backed: a path, or the descriptor mgcca_import_hdf5() and
+    ## HDF5-backed: a path, or the descriptor mgccaImportHDF5() and
     ## mgcca(collect = FALSE) return (which is how a non-default group and a
     ## dataset subset get expressed without a second argument here).
     desc <- NULL
@@ -332,8 +332,8 @@
             stop("the HDF5 file does not exist: ", desc$filename, call. = FALSE)
         ## read-only branch of the package's own importer: for a path it lists
         ## the datasets and returns, writing nothing.
-        d <- mgcca_import_hdf5(desc$filename, filename = desc$filename,
-                               group = desc$group, datasets = desc$datasets)
+        d <- mgccaImportHDF5(desc$filename, filename = desc$filename,
+                             group = desc$group, datasets = desc$datasets)
         return(list(availability = .mgcca_av_matrix(
                         .mgcca_av_assemble(.mgcca_av_ids_hdf5(
                             d$filename, d$group, d$datasets))),
@@ -371,7 +371,7 @@
 
 ## ---- persistence -------------------------------------------------------------
 ## The audit travels with the data: `save_hdf5 = TRUE` writes the COMPLETE audit
-## into an `availability_audit` group of the same file, and mgcca_audit_load()
+## into an `availability_audit` group of the same file, and mgccaAuditLoad()
 ## brings it back whole.
 ##
 ## HOW IT IS ENCODED, and why it is not a blob. Everything is either a double
@@ -595,7 +595,7 @@
 
 #' Read a stored availability audit back from HDF5
 #'
-#' @description Restores, whole, the audit that \code{\link{mgcca_audit}} wrote
+#' @description Restores, whole, the audit that \code{\link{mgccaAudit}} wrote
 #'   into a file with \code{save_hdf5 = TRUE}. The result is the same
 #'   \code{"mgcca_audit"} object, with the same tables, codes and routes.
 #'
@@ -619,13 +619,13 @@
 #'
 #' @param file Path to the HDF5 file holding the audit.
 #' @param group Group the audit was written to. Default
-#'   \code{"availability_audit"}, which is where \code{mgcca_audit()} puts it.
+#'   \code{"availability_audit"}, which is where \code{mgccaAudit()} puts it.
 #' @param check_inputs If \code{TRUE} (default), also re-derive the audit from
 #'   the inputs stored beside it and compare, so a file written by a different
 #'   version of the audit is reported rather than trusted in silence. The object
 #'   returned is the stored one either way.
-#' @return An object of class \code{"mgcca_audit"}; see \code{\link{mgcca_audit}}.
-#' @seealso \code{\link{mgcca_audit}}
+#' @return An object of class \code{"mgcca_audit"}; see \code{\link{mgccaAudit}}.
+#' @seealso \code{\link{mgccaAudit}}
 #' @examples
 #' # a small HDF5-backed design: three blocks over a union of 60 individuals
 #' ids <- sprintf("ind%03d", 1:60)
@@ -637,15 +637,15 @@
 #'     proteins    = matrix(rnorm(30 * 2), 30, 2,
 #'                          dimnames = list(ids[31:60], paste0("p", 1:2))))
 #' h5 <- tempfile(fileext = ".h5")
-#' desc <- mgcca_import_hdf5(blocks, filename = h5, overwriteFile = TRUE)
+#' desc <- mgccaImportHDF5(blocks, filename = h5, overwriteFile = TRUE)
 #'
-#' a <- mgcca_audit(desc, L = 2, save_hdf5 = TRUE)
-#' b <- mgcca_audit_load(h5)
+#' a <- mgccaAudit(desc, L = 2, save_hdf5 = TRUE)
+#' b <- mgccaAuditLoad(h5)
 #' identical(b$provenance$pairs, a$provenance$pairs)
 #' unlink(h5)
 #' @export
-mgcca_audit_load <- function(file, group = .mgcca_av_group,
-                             check_inputs = TRUE) {
+mgccaAuditLoad <- function(file, group = .mgcca_av_group,
+                           check_inputs = TRUE) {
     if (!is.character(file) || length(file) != 1L)
         stop("`file` must be the path to a single HDF5 file.", call. = FALSE)
     if (!file.exists(file))
@@ -662,7 +662,7 @@ mgcca_audit_load <- function(file, group = .mgcca_av_group,
     att <- got$attrs
     if (is.null(att) || !identical(as.character(att$analysis), "mgcca_audit"))
         stop("no mgcca audit is stored in '", group, "' of ", file,
-             ". Write one with mgcca_audit(..., save_hdf5 = TRUE).",
+             ". Write one with mgccaAudit(..., save_hdf5 = TRUE).",
              call. = FALSE)
 
     missing_ds <- union(setdiff(ds, as.character(att$tables)),
@@ -671,7 +671,7 @@ mgcca_audit_load <- function(file, group = .mgcca_av_group,
         stop("the audit stored in '", group, "' of ", file,
              " is incomplete: ", paste(missing_ds, collapse = ", "),
              " missing. Write it again with ",
-             "mgcca_audit(..., save_hdf5 = TRUE).", call. = FALSE)
+             "mgccaAudit(..., save_hdf5 = TRUE).", call. = FALSE)
     ## The audit never produces a NaN -- every stored number is a count, a
     ## proportion, an ESS or a missing value -- so any NaN that comes back is a
     ## missing value that lost its payload on the way through, and treating it
@@ -699,7 +699,7 @@ mgcca_audit_load <- function(file, group = .mgcca_av_group,
                     " does not match what its own inputs imply today (",
                     paste(drift, collapse = ", "),
                     "). The file was most likely written by a different ",
-                    "version of mgcca_audit(). What is returned is what was ",
+                    "version of mgccaAudit(). What is returned is what was ",
                     "stored, not what those inputs imply now.", call. = FALSE)
     }
     out
@@ -715,7 +715,7 @@ mgcca_audit_load <- function(file, group = .mgcca_av_group,
       "pairs_by_stratum", "graph", "design")
 
 ## Re-derive the audit from the inputs stored beside it. Only ever used to
-## CHECK what was stored; it is never what mgcca_audit_load() returns.
+## CHECK what was stored; it is never what mgccaAuditLoad() returns.
 .mgcca_av_from_stored_inputs <- function(stored, att) {
     blocks <- as.character(att$blocks)
     tab <- stored$table
@@ -729,11 +729,11 @@ mgcca_audit_load <- function(file, group = .mgcca_av_group,
     }
     weights <- if (isTRUE(as.integer(att$weights_declared) == 1L))
         as.numeric(stored$weights[, 1L]) else NULL
-    mgcca_audit(A, L = as.integer(att$L), strata = strata, weights = weights,
-                design_lines = list(ess_min = as.numeric(att$ess_min),
-                                    availability_min = as.numeric(att$availability_min),
-                                    max_weight = as.numeric(att$max_weight)),
-                save_hdf5 = FALSE)
+    mgccaAudit(A, L = as.integer(att$L), strata = strata, weights = weights,
+               design_lines = list(ess_min = as.numeric(att$ess_min),
+                                   availability_min = as.numeric(att$availability_min),
+                                   max_weight = as.numeric(att$max_weight)),
+               save_hdf5 = FALSE)
 }
 
 ## Split an advisory bit sum back into its frozen code names.
@@ -1043,7 +1043,7 @@ mgcca_audit_load <- function(file, group = .mgcca_av_group,
 #'   \code{MultiAssayExperiment}, a \code{SummarizedExperiment}, an
 #'   \code{ExpressionSet}, a path to an HDF5 file holding the blocks, or the
 #'   descriptor list (\code{filename}, \code{group}, \code{datasets}) returned by
-#'   \code{\link{mgcca_import_hdf5}}. A bare path carries no declared order or
+#'   \code{\link{mgccaImportHDF5}}. A bare path carries no declared order or
 #'   subset of the blocks, so the file's own listing decides both -- as it does
 #'   for \code{\link{mgcca}}; pass the descriptor to fix them.
 #' @param L Declared rank of the working model, an integer \eqn{\ge 1}. It is
@@ -1065,7 +1065,7 @@ mgcca_audit_load <- function(file, group = .mgcca_av_group,
 #' @param save_hdf5 If \code{TRUE} and \code{data} is HDF5-backed, write the
 #'   complete audit into an \code{availability_audit} group of that same file,
 #'   so the certificate travels with the data, and read it back whole with
-#'   \code{\link{mgcca_audit_load}}. The encoding is structured and inspectable
+#'   \code{\link{mgccaAuditLoad}}. The encoding is structured and inspectable
 #'   rather than a blob: numeric tables as datasets, block names, individual IDs
 #'   and stratum labels as their dimnames, status codes as integers with the
 #'   frozen vocabulary stored beside them as a legend, transfer routes as
@@ -1098,7 +1098,7 @@ mgcca_audit_load <- function(file, group = .mgcca_av_group,
 #'   \code{$source} and \code{$saved}.
 #'
 #' @seealso \code{\link{mgcca}} for the estimator this audit deliberately does
-#'   not touch, and \code{\link{mgcca_audit_load}} for reading a stored audit
+#'   not touch, and \code{\link{mgccaAuditLoad}} for reading a stored audit
 #'   back out of the file it was written into.
 #'
 #' @examples
@@ -1108,7 +1108,7 @@ mgcca_audit_load <- function(file, group = .mgcca_av_group,
 #' av <- cbind(methylation = rep(c(TRUE, FALSE), c(40, 60)),
 #'             expression  = rep(TRUE, 100),
 #'             proteins    = rep(c(FALSE, TRUE), c(40, 60)))
-#' a <- mgcca_audit(av, L = 2)
+#' a <- mgccaAudit(av, L = 2)
 #' a
 #'
 #' # methylation--proteins has no shared individual, but a route through
@@ -1119,7 +1119,7 @@ mgcca_audit_load <- function(file, group = .mgcca_av_group,
 #' # representation of each block and the concentration of the weights.
 #' st <- rep(c("cohort A", "cohort B"), each = 50)
 #' w  <- rep(c(1, 3), each = 50)
-#' summary(mgcca_audit(av, L = 2, strata = st, weights = w))
+#' summary(mgccaAudit(av, L = 2, strata = st, weights = w))
 #'
 #' # The same audit taken from the blocks themselves: the availability table is
 #' # derived from the individual IDs, with mgcca's own union rule.
@@ -1128,13 +1128,13 @@ mgcca_audit_load <- function(file, group = .mgcca_av_group,
 #'     methylation = matrix(0, 40, 3, dimnames = list(ids[1:40], paste0("m", 1:3))),
 #'     expression  = matrix(0, 100, 2, dimnames = list(ids, paste0("e", 1:2))),
 #'     proteins    = matrix(0, 60, 2, dimnames = list(ids[41:100], paste0("p", 1:2))))
-#' mgcca_audit(blocks, L = 2)$graph$component
+#' mgccaAudit(blocks, L = 2)$graph$component
 #' @export
-mgcca_audit <- function(data, L, strata = NULL, weights = NULL,
-                        design_lines = list(ess_min = 30,
-                                            availability_min = 0.05,
-                                            max_weight = 20),
-                        save_hdf5 = FALSE) {
+mgccaAudit <- function(data, L, strata = NULL, weights = NULL,
+                       design_lines = list(ess_min = 30,
+                                           availability_min = 0.05,
+                                           max_weight = 20),
+                       save_hdf5 = FALSE) {
     cl <- match.call()
     src <- .mgcca_av_input(data)
     A <- src$availability
@@ -1458,14 +1458,16 @@ mgcca_audit <- function(data, L, strata = NULL, weights = NULL,
 #'   verdict on identification.
 #'
 #' @param x An object of class \code{"mgcca_audit"}, as returned by
-#'   \code{mgcca_audit()}.
+#'   \code{mgccaAudit()}.
 #' @param object An object of class \code{"mgcca_audit"}, as returned by
-#'   \code{mgcca_audit()}.
-#' @param ... Ignored.
+#'   \code{mgccaAudit()}.
+#' @param ... Ignored by \code{print()} and \code{summary()}. For
+#'   \code{mgcca_audit()}: the arguments of \code{mgccaAudit()}, passed on
+#'   unchanged.
 #' @return \code{print()} returns its argument invisibly and \code{summary()}
 #'   returns \code{object} invisibly; both are called for what they write to
 #'   the console.
-#' @rdname mgcca_audit
+#' @rdname mgccaAudit
 #' @export
 print.mgcca_audit <- function(x, ...) {
     cat("mgcca availability audit (pre-fit; the estimator is not called)\n")
@@ -1532,7 +1534,7 @@ print.mgcca_audit <- function(x, ...) {
 #'   supports, route and bottleneck, and the representation table. A finite
 #'   entry there evidences positivity for that cell without proving it, and
 #'   the printed note says so.
-#' @rdname mgcca_audit
+#' @rdname mgccaAudit
 #' @export
 summary.mgcca_audit <- function(object, ...) {
     print(object)
@@ -2423,7 +2425,7 @@ summary.mgcca_audit <- function(object, ...) {
 #' @return For every type except \code{"overview"}, a \code{ggplot} object. For
 #'   \code{"overview"}, the four panels as a named list, returned invisibly
 #'   after the composite is drawn.
-#' @seealso \code{\link{mgcca_audit}}
+#' @seealso \code{\link{mgccaAudit}}
 #' @examples
 #' # a design where one block is reachable only through a single edge
 #' ids <- sprintf("ind%02d", 1:85)
@@ -2432,9 +2434,9 @@ summary.mgcca_audit <- function(object, ...) {
 #'                proteins    = rep(TRUE, length(ids)),
 #'                metabolites = seq_along(ids) %in% 61:85)
 #' rownames(avail) <- ids
-#' a <- mgcca_audit(avail, L = 2,
-#'                  strata = rep(c("cohort A", "cohort B"), length.out = 85),
-#'                  weights = ifelse(seq_along(ids) %in% 1:60, 1, 3))
+#' a <- mgccaAudit(avail, L = 2,
+#'                 strata = rep(c("cohort A", "cohort B"), length.out = 85),
+#'                 weights = ifelse(seq_along(ids) %in% 1:60, 1, 3))
 #'
 #' # the curated composite (give it room: ~11 x 9 inches)
 #' panels <- plot(a)

@@ -1,6 +1,6 @@
 ## Selectable outputs: which components a collection actually reads.
 ##
-## `mgcca_results()` materialises ten components out of the HDF5 file. Most
+## `mgccaResults()` materialises ten components out of the HDF5 file. Most
 ## callers want all of them and pay nothing for it -- they are small. Some do
 ## not: a plotting script wants `Y`, a projection wants `weights` and `scaling`,
 ## and a fit with many wide tables makes the per-table blocks the expensive part

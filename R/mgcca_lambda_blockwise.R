@@ -40,7 +40,7 @@
 #'   which is why the dimensionless \eqn{\gamma} is the comparable quantity.
 #'
 #' @details The rule applied is the package's own, as used by
-#'   \code{\link{mgcca_select_lambda}}: each column is centred by its mean and
+#'   \code{\link{mgccaSelectLambda}}: each column is centred by its mean and
 #'   scaled by its standard deviation, and a column whose centre or scale is
 #'   non-finite, or whose scale is at or below \code{sd_tol}, is dropped. A
 #'   column holding any non-finite value therefore drops out, and the result is
@@ -59,7 +59,7 @@
 #'
 #' @param filename Path to the HDF5 file holding the tables.
 #' @param group HDF5 group holding the tables. Default \code{"MGCCA_IN"}, the
-#'   group \code{\link{mgcca_import_hdf5}} writes.
+#'   group \code{\link{mgccaImportHDF5}} writes.
 #' @param datasets Optional character vector naming the tables to use, in
 #'   order. Defaults to every dataset in \code{group}.
 #' @param gamma Numeric, the dimensionless ridge: finite positive values, length
@@ -86,8 +86,8 @@
 #'       \code{sym_err}, \code{sd_min_kept}, \code{sd_max_dropped}.}
 #'   }
 #'
-#' @seealso \code{\link{mgcca_select_lambda}} for choosing \code{gamma} by
-#'   held-out cross-block agreement, and \code{\link{mgcca_import_hdf5}} for
+#' @seealso \code{\link{mgccaSelectLambda}} for choosing \code{gamma} by
+#'   held-out cross-block agreement, and \code{\link{mgccaImportHDF5}} for
 #'   writing tables into the file this function reads.
 #'
 #' @examples
@@ -101,22 +101,22 @@
 #' X <- list(methylation = num(X1, 1:10), clinical = num(X2), other = num(X3))
 #'
 #' h5 <- tempfile(fileext = ".h5")
-#' desc <- mgcca_import_hdf5(X, filename = h5, overwriteFile = TRUE)
+#' desc <- mgccaImportHDF5(X, filename = h5, overwriteFile = TRUE)
 #'
-#' sm <- mgcca_lambda_scale_hdf5(desc$filename, desc$group, desc$datasets)
+#' sm <- mgccaLambdaScaleHDF5(desc$filename, desc$group, desc$datasets)
 #' sm$lambda
 #' sm$details
 #'
 #' ## the same scales, read in narrower chunks
-#' sm2 <- mgcca_lambda_scale_hdf5(desc$filename, desc$group, desc$datasets,
-#'                                chunk_cols = 3)
+#' sm2 <- mgccaLambdaScaleHDF5(desc$filename, desc$group, desc$datasets,
+#'                             chunk_cols = 3)
 #' max(abs(sm2$s - sm$s) / abs(sm$s))
 #' unlink(h5)
 #' @export
-mgcca_lambda_scale_hdf5 <- function(filename, group = "MGCCA_IN",
-                                    datasets = NULL, gamma = 1, scale = TRUE,
-                                    chunk_cols = 5000, rank_tol = 1e-8,
-                                    sd_tol = 1e-8) {
+mgccaLambdaScaleHDF5 <- function(filename, group = "MGCCA_IN",
+                                 datasets = NULL, gamma = 1, scale = TRUE,
+                                 chunk_cols = 5000, rank_tol = 1e-8,
+                                 sd_tol = 1e-8) {
 
     if (!is.character(filename) || length(filename) != 1L || is.na(filename))
         stop("'filename' must be a single path to an HDF5 file", call. = FALSE)
@@ -193,7 +193,7 @@ mgcca_lambda_scale_hdf5 <- function(filename, group = "MGCCA_IN",
 
 
 ## ---- the lambda mgcca() computes when the caller leaves it unset -----------
-## lambda_j = gamma * s_j. That is the same number mgcca_select_lambda() hands
+## lambda_j = gamma * s_j. That is the same number mgccaSelectLambda() hands
 ## back for the same gamma (it returns gamma * s over the same s_j), so a user
 ## who tunes gamma by cross-validation afterwards is moving along the same
 ## parameterisation and not switching rule.
@@ -211,9 +211,9 @@ mgcca_lambda_scale_hdf5 <- function(filename, group = "MGCCA_IN",
 }
 
 .mgcca_default_lambda_hdf5 <- function(desc, do_scale = TRUE, gamma = 1) {
-    sm <- mgcca_lambda_scale_hdf5(desc$filename, group = desc$group,
-                                  datasets = desc$datasets, gamma = gamma,
-                                  scale = isTRUE(do_scale))
+    sm <- mgccaLambdaScaleHDF5(desc$filename, group = desc$group,
+                               datasets = desc$datasets, gamma = gamma,
+                               scale = isTRUE(do_scale))
     .mgcca_report_default_lambda(sm$lambda, gamma, "over HDF5 column chunks")
     sm$lambda
 }

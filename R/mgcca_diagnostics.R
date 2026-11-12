@@ -97,7 +97,7 @@
 ##
 ## It stays on BigDataStatMeth's reader rather than moving to one of mgcca's own
 ## single-open readers, and that is a constraint rather than a preference:
-## mgcca_results() calls this while it still holds its own BigDataStatMeth
+## mgccaResults() calls this while it still holds its own BigDataStatMeth
 ## handles on the file, and a file held through one statically linked HDF5
 ## instance cannot be opened through the other -- the second open is refused
 ## outright. Reading here through the instance that already holds the file is

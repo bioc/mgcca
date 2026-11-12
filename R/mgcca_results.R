@@ -5,8 +5,8 @@
 #'   returning them in memory. This reader materialises those results into a
 #'   compact list of class \code{"mgcca"} -- the same shape the legacy in-memory
 #'   \code{mgcca()} returned -- so the post-analysis helpers
-#'   \code{\link{plotInds}}, \code{\link{plotVars}}, \code{\link{getSignif}} and
-#'   \code{\link{topVars}} work unchanged on the port's output.
+#'   \code{\link{plotIndividuals}}, \code{\link{plotVariables}},
+#'   \code{\link{getSignif}} and \code{\link{topVars}} work unchanged on the port's output.
 #'
 #'   The shared components \code{Y} and the per-table \code{corsY} / \code{pval}
 #'   are small (individuals or variables \eqn{\times} \code{nfac}), so collecting
@@ -81,7 +81,8 @@
 #'   Each \code{scores} matrix spans the union of individuals, but an individual
 #'   that is not part of a given table has \code{NA} in that table's scores (the
 #'   HDF5 layer stores it as \code{NaN}). Only \code{Y} is defined for everyone.
-#' @seealso \code{\link{mgcca}}, \code{\link{plotInds}}, \code{\link{plotVars}}
+#' @seealso \code{\link{mgcca}}, \code{\link{plotIndividuals}},
+#'   \code{\link{plotVariables}}
 #' @examples
 #' data(cardiovascular)
 #' ids <- Reduce(union, list(rownames(X1), rownames(X2), rownames(X3)))[1:100]
@@ -97,7 +98,7 @@
 #' desc <- mgcca(X, filename = h5, nfac = 2, method = "penalized",
 #'               lambda = rep(0.1, 3), collect = FALSE)
 #'
-#' res <- mgcca_results(desc)
+#' res <- mgccaResults(desc)
 #' dim(res$Y)
 #' table(res$blocks_present)
 #' names(res$corsY)
@@ -105,14 +106,14 @@
 #'
 #' ## Subtractive collection: only the shared components are read back, and
 #' ## they are bit-for-bit the ones a full collection would have returned.
-#' resY <- mgcca_results(desc, outputs = "Y")
+#' resY <- mgccaResults(desc, outputs = "Y")
 #' identical(resY$Y, res$Y)
 #' names(Filter(Negate(is.null), resY))
 #' unlink(h5)
 #' @export
-mgcca_results <- function(x, datasets = NULL, final_group = NULL,
-                          scores = NULL, pval = TRUE,
-                          tmp_group = "MGCCA_TMP", outputs = NULL) {
+mgccaResults <- function(x, datasets = NULL, final_group = NULL,
+                         scores = NULL, pval = TRUE,
+                         tmp_group = "MGCCA_TMP", outputs = NULL) {
 
     if (is.list(x)) {
         filename    <- x$filename
@@ -136,7 +137,7 @@ mgcca_results <- function(x, datasets = NULL, final_group = NULL,
 
     open_handles <- list()
     read_mat <- function(path) {
-        .mgcca_refuse_held_file(filename, "mgcca_results")
+        .mgcca_refuse_held_file(filename, "mgccaResults")
         hm <- BigDataStatMeth::hdf5_matrix(filename, path)
         open_handles[[length(open_handles) + 1L]] <<- hm
         m  <- as.matrix(hm)

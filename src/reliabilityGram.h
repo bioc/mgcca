@@ -181,7 +181,7 @@ inline GramResult present_only_gram(const std::string& file,
                 throw std::runtime_error(
                     "degenerate feature (sd <= var_eps) at logical index " +
                     std::to_string(f0 + r) + " (id '" + featnm[f0 + r] +
-                    "'); upstream QC must remove constant features (oracle script 34 l.45)"
+                    "'); constant features must be removed before the analysis"
                     " -- run ABORTED, no partial Gram returned");
         }
         Eigen::VectorXd inv = sd.array().inverse();

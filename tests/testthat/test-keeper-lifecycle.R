@@ -1,4 +1,4 @@
-# The handle `mgcca_sensitivity()` and `mgcca_stability()` hold open on their
+# The handle `mgccaSensitivity()` and `mgccaStability()` hold open on their
 # HDF5 file for the length of the analysis: who may open the file while it is
 # held, and who may not.
 #
@@ -68,23 +68,34 @@ test_that("the eigenvalue report refuses a file an mgcca handle holds open", {
                  class = "mgcca_file_held")
 })
 
-test_that("mgcca_results() refuses a file an mgcca handle holds open", {
+test_that("mgccaResults() refuses a file an mgcca handle holds open", {
     fx <- keeper_fixture()
     hold_file(fx$file)
-    expect_error(mgcca_results(attr(fx$fit, "desc")), class = "mgcca_file_held")
+    expect_error(mgccaResults(attr(fx$fit, "desc")), class = "mgcca_file_held")
 })
 
-test_that("mgcca_import_hdf5() refuses a file an mgcca handle holds open", {
+test_that("the refusal holds when the handle was taken on another spelling", {
+    fx <- keeper_fixture()
+    # The same file through a path that is not its canonical form: the handle
+    # records the canonical form, so the reader still recognises the file.
+    ctx <- new.env(parent = emptyenv())
+    ctx$file <- file.path(dirname(fx$file), ".", basename(fx$file))
+    withr::defer(mgcca:::.mgcca_rel_release(ctx))
+    ctx$handle <- mgcca:::.mgcca_rel_hold(ctx$file)
+    expect_error(mgccaResults(attr(fx$fit, "desc")), class = "mgcca_file_held")
+})
+
+test_that("mgccaImportHDF5() refuses a file an mgcca handle holds open", {
     fx <- keeper_fixture()
     hold_file(fx$file)
     # Listing the datasets of an existing file is one open; writing a table
     # into it is the other.
-    expect_error(mgcca_import_hdf5(fx$file, filename = fx$file,
-                                   group = "MGCCA_IN"),
+    expect_error(mgccaImportHDF5(fx$file, filename = fx$file,
+                                 group = "MGCCA_IN"),
                  class = "mgcca_file_held")
     one <- matrix(1, 3L, 2L, dimnames = list(fx$ids[1:3], c("a", "b")))
-    expect_error(mgcca_import_hdf5(list(t1 = one, t2 = one),
-                                   filename = fx$file, group = "KEEPER_IN"),
+    expect_error(mgccaImportHDF5(list(t1 = one, t2 = one),
+                                 filename = fx$file, group = "KEEPER_IN"),
                  class = "mgcca_file_held")
 })
 
@@ -93,11 +104,11 @@ test_that("a file the handle does not hold is read as usual", {
     other <- h5_tmp()
     one <- matrix(c(1, 2, 3, 4, 5, 6), 3L, 2L,
                   dimnames = list(c("a", "b", "c"), c("v1", "v2")))
-    desc <- mgcca_import_hdf5(list(t1 = one, t2 = one), filename = other,
-                              group = "MGCCA_IN", overwriteFile = TRUE)
+    desc <- mgccaImportHDF5(list(t1 = one, t2 = one), filename = other,
+                            group = "MGCCA_IN", overwriteFile = TRUE)
     hold_file(fx$file)
     expect_identical(sort(desc$datasets), c("t1", "t2"))
-    again <- mgcca_import_hdf5(other, filename = other, group = "MGCCA_IN")
+    again <- mgccaImportHDF5(other, filename = other, group = "MGCCA_IN")
     expect_identical(sort(again$datasets), c("t1", "t2"))
 })
 
@@ -106,7 +117,7 @@ test_that("only one handle is held at a time", {
     hold_file(fx$file)
     expect_error(mgcca:::.mgcca_rel_hold(fx$file),
                  class = "mgcca_nested_file_handle")
-    expect_error(suppressMessages(mgcca_sensitivity(fx$fit, query = fx$query)),
+    expect_error(suppressMessages(mgccaSensitivity(fx$fit, query = fx$query)),
                  class = "mgcca_nested_file_handle")
 })
 
@@ -140,18 +151,18 @@ test_that("releasing twice, and releasing nothing, are both no-ops", {
 test_that("the analyses leave nothing held, on return and after an error", {
     fx <- keeper_fixture()
     on.exit(try(BigDataStatMeth::hdf5_close_all(), silent = TRUE), add = TRUE)
-    sens <- suppressMessages(mgcca_sensitivity(fx$fit, query = fx$query))
+    sens <- suppressMessages(mgccaSensitivity(fx$fit, query = fx$query))
     expect_identical(nrow(sens$by_block), 3L)
     expect_null(mgcca:::.mgcca_held_file$path)
-    stab <- suppressMessages(mgcca_stability(fx$fit, method = "subsample",
-                                             B = 4L))
+    stab <- suppressMessages(mgccaStability(fx$fit, method = "subsample",
+                                            B = 4L))
     expect_identical(nrow(stab$resamples), 4L)
     expect_null(mgcca:::.mgcca_held_file$path)
     # A query a covariate spans has no alignment: the analysis stops inside the
     # held window.
     cv <- matrix(fx$query, ncol = 1L, dimnames = list(fx$ids, "same"))
     expect_error(suppressMessages(
-        mgcca_sensitivity(fx$fit, query = fx$query, covariates = cv)))
+        mgccaSensitivity(fx$fit, query = fx$query, covariates = cv)))
     expect_null(mgcca:::.mgcca_held_file$path)
     expect_true(is.matrix(as.matrix(
         BigDataStatMeth::hdf5_matrix(fx$file, "FINAL_RESULTS/Y"))))

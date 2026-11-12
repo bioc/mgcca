@@ -81,7 +81,7 @@ pair_of <- function(a, j, k, col) {
 # ---- (1) graph classification ----------------------------------------------
 
 test_that("the chain has one component, three bridges and one articulation block", {
-    a <- mgcca_audit(ad_chain(), L = 2)
+    a <- mgccaAudit(ad_chain(), L = 2)
 
     expect_equal(unname(a$graph$component), c(1L, 1L, 1L))
     expect_equal(a$graph$n_components, 1L)
@@ -104,7 +104,7 @@ test_that("the chain has one component, three bridges and one articulation block
 })
 
 test_that("the cycle has kappa 2 everywhere, no bridge and no articulation block", {
-    a <- mgcca_audit(ad_cycle(), L = 2)
+    a <- mgccaAudit(ad_cycle(), L = 2)
 
     expect_equal(a$graph$n_components, 1L)
     expect_equal(nrow(a$graph$edges), 4L)
@@ -122,7 +122,7 @@ test_that("the cycle has kappa 2 everywhere, no bridge and no articulation block
 })
 
 test_that("the disconnected design splits into two components", {
-    a <- mgcca_audit(ad_disconnected(), L = 2)
+    a <- mgccaAudit(ad_disconnected(), L = 2)
 
     expect_equal(unname(a$graph$component), c(1L, 1L, 2L))
     expect_equal(a$graph$n_components, 2L)
@@ -136,7 +136,7 @@ test_that("the disconnected design splits into two components", {
 })
 
 test_that("the single-bridge design isolates C--D as the only bridge", {
-    a <- mgcca_audit(ad_bridge(), L = 2)
+    a <- mgccaAudit(ad_bridge(), L = 2)
 
     expect_equal(a$graph$n_components, 1L)
     expect_equal(nrow(a$graph$edges), 4L)
@@ -159,7 +159,7 @@ test_that("the single-bridge design isolates C--D as the only bridge", {
 })
 
 test_that("a thin joint cell with no route is UNSUPPORTED, not a structural zero", {
-    a <- mgcca_audit(ad_thin(), L = 2)
+    a <- mgccaAudit(ad_thin(), L = 2)
 
     expect_equal(pair_of(a, "A", "B", "n_jk"), 4L)
     expect_equal(pair_of(a, "A", "B", "pi_hat_jk"), 0.02)
@@ -169,7 +169,7 @@ test_that("a thin joint cell with no route is UNSUPPORTED, not a structural zero
 
     # and it becomes an edge the moment the declared line is moved below it --
     # the line is declared, it is not a property of the data
-    b <- mgcca_audit(ad_thin(), L = 2, design_lines = list(availability_min = 0.01))
+    b <- mgccaAudit(ad_thin(), L = 2, design_lines = list(availability_min = 0.01))
     expect_equal(pair_of(b, "A", "B", "code"), "DIRECT_SUPPORT")
 })
 
@@ -177,7 +177,7 @@ test_that("a thin joint cell with no route is UNSUPPORTED, not a structural zero
 # ---- (2) provenance: widest routes and bottlenecks --------------------------
 
 test_that("the chain's transfer route and bottleneck are the hand-computed ones", {
-    a <- mgcca_audit(ad_chain(), L = 2)
+    a <- mgccaAudit(ad_chain(), L = 2)
 
     expect_equal(pair_of(a, "A1", "C", "path"), "A1 -> B -> C")
     expect_equal(pair_of(a, "A1", "C", "path_length"), 2L)
@@ -192,7 +192,7 @@ test_that("the chain's transfer route and bottleneck are the hand-computed ones"
 })
 
 test_that("the cycle's widest routes are the unique hand-computed ones", {
-    a <- mgcca_audit(ad_cycle(), L = 2)
+    a <- mgccaAudit(ad_cycle(), L = 2)
 
     expect_equal(pair_of(a, "A", "C", "path"), "A -> B -> C")
     expect_equal(pair_of(a, "A", "C", "bottleneck"), 20)
@@ -208,7 +208,7 @@ test_that("the cycle's widest routes are the unique hand-computed ones", {
 })
 
 test_that("the single-bridge routes bottleneck on the bridge", {
-    a <- mgcca_audit(ad_bridge(), L = 2)
+    a <- mgccaAudit(ad_bridge(), L = 2)
 
     expect_equal(pair_of(a, "A", "D", "path"), "A -> C -> D")
     expect_equal(pair_of(a, "A", "D", "bottleneck"), 20)
@@ -218,7 +218,7 @@ test_that("the single-bridge routes bottleneck on the bridge", {
 })
 
 test_that("support against L is reported as description, never as a proof", {
-    a <- mgcca_audit(ad_chain(), L = 2)
+    a <- mgccaAudit(ad_chain(), L = 2)
     expect_true(all(a$provenance$pairs$L == 2L))
     expect_equal(pair_of(a, "A1", "C", "n_jk_ge_L"), FALSE)      # n_jk = 0
     expect_equal(pair_of(a, "A1", "C", "bottleneck_ge_L"), TRUE) # B = 40
@@ -234,8 +234,8 @@ test_that("Kish ESS, max weight and proportions are the hand-computed values", {
     # Two strata of four, both blocks complete. Stratum A weights (1,1,1,5):
     #   ESS = 8^2 / (1+1+1+25) = 64/28. Stratum B weights (2,2,2,2): ESS = 4.
     av <- matrix(TRUE, 8, 2, dimnames = list(NULL, c("A", "B")))
-    a <- mgcca_audit(av, L = 1, strata = rep(c("s1", "s2"), each = 4),
-                     weights = c(1, 1, 1, 5, 2, 2, 2, 2))
+    a <- mgccaAudit(av, L = 1, strata = rep(c("s1", "s2"), each = 4),
+                    weights = c(1, 1, 1, 5, 2, 2, 2, 2))
     r <- a$representation
 
     expect_equal(nrow(r), 4L)
@@ -257,7 +257,7 @@ test_that("Kish ESS, max weight and proportions are the hand-computed values", {
 
 test_that("ESS is absent, not zero, when no weights are declared", {
     av <- matrix(TRUE, 8, 2, dimnames = list(NULL, c("A", "B")))
-    a <- mgcca_audit(av, L = 1, strata = rep(c("s1", "s2"), each = 4))
+    a <- mgccaAudit(av, L = 1, strata = rep(c("s1", "s2"), each = 4))
 
     expect_false(a$weights_declared)
     expect_true(all(is.na(a$representation$ess)))
@@ -269,8 +269,8 @@ test_that("ESS is absent, not zero, when no weights are declared", {
 })
 
 test_that("the availability tables carry the hand-computed counts", {
-    a <- mgcca_audit(ad_bridge(), L = 2,
-                     strata = rep(c("s1", "s2"), c(30, 20)))
+    a <- mgccaAudit(ad_bridge(), L = 2,
+                    strata = rep(c("s1", "s2"), c(30, 20)))
 
     ab <- a$availability$by_block
     expect_equal(ab$n_j, c(30L, 30L, 50L, 20L))
@@ -282,7 +282,7 @@ test_that("the availability tables carry the hand-computed counts", {
 
     # per-stratum joint counts appear only when strata are declared
     expect_false(is.null(a$availability$pairs_by_stratum))
-    expect_null(mgcca_audit(ad_bridge(), L = 2)$availability$pairs_by_stratum)
+    expect_null(mgccaAudit(ad_bridge(), L = 2)$availability$pairs_by_stratum)
 })
 
 test_that("a declared stratum that empties a joint cell removes the edge", {
@@ -293,10 +293,10 @@ test_that("a declared stratum that empties a joint cell removes the edge", {
     m[51:100, 2] <- TRUE
     st <- rep(c("s1", "s2"), each = 50)
 
-    pooled <- mgcca_audit(m, L = 2)
+    pooled <- mgccaAudit(m, L = 2)
     expect_equal(pair_of(pooled, "A", "B", "code"), "DIRECT_SUPPORT")
 
-    a <- mgcca_audit(m, L = 2, strata = st)
+    a <- mgccaAudit(m, L = 2, strata = st)
     expect_equal(pair_of(a, "A", "B", "n_jk"), 50L)     # not a structural zero
     expect_equal(pair_of(a, "A", "B", "n_jkc_min"), 0L)
     expect_equal(pair_of(a, "A", "B", "code"), "UNSUPPORTED")
@@ -409,7 +409,7 @@ test_that("the classifier agrees with the prototype on all 100 KT-3a designs", {
     for (rep in 1:100) {
         g <- proto_g(rep)
         M <- proto_mask_kt3a(rep)
-        a <- mgcca_audit(M, L = 2, strata = g)
+        a <- mgccaAudit(M, L = 2, strata = g)
         p <- proto_classify(M, g)
         ours <- c(ours, unname(frozen_to_proto(a$provenance$pairs$code)))
         proto <- c(proto, p$class)
@@ -422,7 +422,7 @@ test_that("the classifier agrees with the prototype on all 100 KT-3a designs", {
 
     # and the KT-3a design really is the one the prototype ran on: patterns
     # {1,2} and {3} only, so blocks 1 and 2 are direct and block 3 is cut off
-    a <- mgcca_audit(proto_mask_kt3a(1L), L = 2, strata = proto_g(1L))
+    a <- mgccaAudit(proto_mask_kt3a(1L), L = 2, strata = proto_g(1L))
     expect_equal(pair_of(a, "b1", "b2", "code"), "DIRECT_SUPPORT")
     expect_equal(pair_of(a, "b1", "b3", "code"), "STRUCTURAL_ZERO")
     expect_equal(pair_of(a, "b2", "b3", "code"), "STRUCTURAL_ZERO")
@@ -434,7 +434,7 @@ test_that("it also agrees on the KT-3b starved designs, where the cell is thin",
     for (rep in 1:20) {
         g <- proto_g(rep)
         M <- proto_mask_kt3b(rep)
-        a <- mgcca_audit(M, L = 2, strata = g)
+        a <- mgccaAudit(M, L = 2, strata = g)
         ours <- c(ours, unname(frozen_to_proto(a$provenance$pairs$code)))
         proto <- c(proto, proto_classify(M, g)$class)
     }
@@ -443,7 +443,7 @@ test_that("it also agrees on the KT-3b starved designs, where the cell is thin",
     # this design is the interesting half of the mapping: block 3 IS jointly
     # observed with the others overall, but not once inside stratum B, so the
     # pair is UNSUPPORTED rather than a structural zero.
-    a <- mgcca_audit(proto_mask_kt3b(1L), L = 2, strata = proto_g(1L))
+    a <- mgccaAudit(proto_mask_kt3b(1L), L = 2, strata = proto_g(1L))
     expect_gt(pair_of(a, "b1", "b3", "n_jk"), 0L)
     expect_equal(pair_of(a, "b1", "b3", "n_jkc_min"), 0L)
     expect_equal(pair_of(a, "b1", "b3", "code"), "UNSUPPORTED")
@@ -454,7 +454,7 @@ test_that("it also agrees on the KT-3b starved designs, where the cell is thin",
 
 test_that("structural_checks is present and says exactly not_evaluated", {
     for (av in list(ad_chain(), ad_cycle(), ad_disconnected(), ad_bridge()))
-        expect_identical(mgcca_audit(av, L = 2)$structural_checks,
+        expect_identical(mgccaAudit(av, L = 2)$structural_checks,
                          "not_evaluated")
 })
 
@@ -465,7 +465,7 @@ test_that("only the frozen vocabulary is ever emitted", {
     seen_codes <- seen_adv <- character(0)
     for (av in list(ad_chain(), ad_cycle(), ad_disconnected(), ad_bridge(),
                     ad_thin())) {
-        a <- mgcca_audit(av, L = 2, weights = rep(c(1, 2), length.out = nrow(av)))
+        a <- mgccaAudit(av, L = 2, weights = rep(c(1, 2), length.out = nrow(av)))
         seen_codes <- c(seen_codes, a$status$pairs$code)
         seen_adv <- c(seen_adv,
                       unlist(strsplit(c(a$status$pairs$advisory,
@@ -478,13 +478,13 @@ test_that("only the frozen vocabulary is ever emitted", {
     # no IDENTIFIED_* code exists anywhere in what the object emits
     expect_false(any(grepl("IDENTIFIED", c(seen_codes, seen_adv))))
     expect_false(any(grepl("NOT_IDENTIFIED",
-                           capture.output(print(mgcca_audit(ad_thin(), L = 2))))))
+                           capture.output(print(mgccaAudit(ad_thin(), L = 2))))))
 })
 
 test_that("the audit never refuses, whatever the design", {
     # nothing observed at all
     empty <- matrix(FALSE, 10, 3, dimnames = list(NULL, c("A", "B", "C")))
-    a <- expect_no_error(mgcca_audit(empty, L = 5))
+    a <- expect_no_error(mgccaAudit(empty, L = 5))
     expect_s3_class(a, "mgcca_audit")
     expect_true(all(a$provenance$pairs$code == "STRUCTURAL_ZERO"))
     expect_equal(a$graph$n_components, 3L)
@@ -492,14 +492,14 @@ test_that("the audit never refuses, whatever the design", {
 
     # one individual, everything present
     one <- matrix(TRUE, 1, 2, dimnames = list(NULL, c("A", "B")))
-    b <- expect_no_error(mgcca_audit(one, L = 1))
+    b <- expect_no_error(mgccaAudit(one, L = 1))
     expect_equal(pair_of(b, "A", "B", "code"), "DIRECT_SUPPORT")
     expect_true(b$status$pairs$low_support)          # n_jk = 1 < ess_min = 30
 
     # every declared weight zero: ESS is 0, and it is still reported, not refused
-    c0 <- expect_no_error(mgcca_audit(matrix(TRUE, 6, 2,
-                                             dimnames = list(NULL, c("A", "B"))),
-                                      L = 1, weights = rep(0, 6)))
+    c0 <- expect_no_error(mgccaAudit(matrix(TRUE, 6, 2,
+                                            dimnames = list(NULL, c("A", "B"))),
+                                     L = 1, weights = rep(0, 6)))
     expect_equal(c0$representation$ess, rep(0, 2))
     expect_true(all(grepl("SEVERE_REPRESENTATION_WARNING",
                           c0$representation$advisory)))
@@ -510,14 +510,14 @@ test_that("the audit never refuses, whatever the design", {
 })
 
 test_that("the printed output keeps the licensed wording", {
-    out <- capture.output(print(mgcca_audit(ad_chain(), L = 2)))
+    out <- capture.output(print(mgccaAudit(ad_chain(), L = 2)))
     expect_match(paste(out, collapse = " "), "design-support fragility")
     expect_match(paste(out, collapse = " "),
                  "identified\\s+conditional on the declared rank-L model")
     expect_match(paste(out, collapse = " "), "declared lines with margin")
     expect_match(paste(out, collapse = " "), "refuse")
 
-    s <- capture.output(summary(mgcca_audit(ad_chain(), L = 2)))
+    s <- capture.output(summary(mgccaAudit(ad_chain(), L = 2)))
     expect_match(paste(s, collapse = " "), "does not prove numerical rank")
     expect_match(paste(s, collapse = " "),
                  "evidences positivity for that cell")
@@ -527,18 +527,18 @@ test_that("the printed output keeps the licensed wording", {
 
 test_that("bad inputs are refused as inputs, with a message that says why", {
     av <- ad_chain()
-    expect_error(mgcca_audit(av), "declared rank")
-    expect_error(mgcca_audit(av, L = 0), "declared rank")
-    expect_error(mgcca_audit(av, L = 2.5), "declared rank")
-    expect_error(mgcca_audit(av, L = 2, strata = rep(1, 3)), "one entry per individual")
-    expect_error(mgcca_audit(av, L = 2, weights = rep(1, 3)), "one entry per individual")
-    expect_error(mgcca_audit(av, L = 2, weights = rep(-1, 100)), "non-negative")
-    expect_error(mgcca_audit(av, L = 2, design_lines = list(nope = 1)), "unknown design line")
-    expect_error(mgcca_audit(av, L = 2, design_lines = list(ess_min = -1)), "non-negative")
-    expect_error(mgcca_audit(av[, 1, drop = FALSE], L = 2), "at least two blocks")
+    expect_error(mgccaAudit(av), "declared rank")
+    expect_error(mgccaAudit(av, L = 0), "declared rank")
+    expect_error(mgccaAudit(av, L = 2.5), "declared rank")
+    expect_error(mgccaAudit(av, L = 2, strata = rep(1, 3)), "one entry per individual")
+    expect_error(mgccaAudit(av, L = 2, weights = rep(1, 3)), "one entry per individual")
+    expect_error(mgccaAudit(av, L = 2, weights = rep(-1, 100)), "non-negative")
+    expect_error(mgccaAudit(av, L = 2, design_lines = list(nope = 1)), "unknown design line")
+    expect_error(mgccaAudit(av, L = 2, design_lines = list(ess_min = -1)), "non-negative")
+    expect_error(mgccaAudit(av[, 1, drop = FALSE], L = 2), "at least two blocks")
     bad <- av; bad[1, 1] <- NA
-    expect_error(mgcca_audit(bad, L = 2), "must not contain NA")
-    expect_error(mgcca_audit(matrix(2, 4, 2), L = 2), "logical or 0/1")
+    expect_error(mgccaAudit(bad, L = 2), "must not contain NA")
+    expect_error(mgccaAudit(matrix(2, 4, 2), L = 2), "logical or 0/1")
 })
 
 
@@ -546,7 +546,7 @@ test_that("bad inputs are refused as inputs, with a message that says why", {
 
 test_that("J = 2 works and has exactly one pair", {
     av <- matrix(TRUE, 40, 2, dimnames = list(NULL, c("A", "B")))
-    a <- mgcca_audit(av, L = 2)
+    a <- mgccaAudit(av, L = 2)
     expect_equal(nrow(a$provenance$pairs), 1L)
     expect_equal(a$graph$n_components, 1L)
     expect_equal(pair_of(a, "A", "B", "kappa"), 1L)     # one edge is a bridge
@@ -556,7 +556,7 @@ test_that("J = 2 works and has exactly one pair", {
 
 test_that("an all-complete design is DIRECT_SUPPORT throughout", {
     av <- matrix(TRUE, 40, 3, dimnames = list(NULL, c("A", "B", "C")))
-    a <- mgcca_audit(av, L = 2)
+    a <- mgccaAudit(av, L = 2)
     expect_true(a$graph$complete)
     expect_true(all(a$provenance$pairs$code == "DIRECT_SUPPORT"))
     expect_true(all(a$provenance$pairs$kappa == 2L))    # a triangle
@@ -569,7 +569,7 @@ test_that("an empty overlap is a structural zero", {
     av <- matrix(FALSE, 100, 2, dimnames = list(NULL, c("A", "B")))
     av[1:50, 1] <- TRUE
     av[51:100, 2] <- TRUE
-    a <- mgcca_audit(av, L = 2)
+    a <- mgccaAudit(av, L = 2)
     expect_equal(pair_of(a, "A", "B", "n_jk"), 0L)
     expect_equal(pair_of(a, "A", "B", "code"), "STRUCTURAL_ZERO")
     expect_equal(a$graph$n_components, 2L)
@@ -577,8 +577,8 @@ test_that("an empty overlap is a structural zero", {
 
 test_that("a single declared stratum reproduces the undeclared case", {
     av <- ad_bridge()
-    a <- mgcca_audit(av, L = 2)
-    b <- mgcca_audit(av, L = 2, strata = rep("only", nrow(av)))
+    a <- mgccaAudit(av, L = 2)
+    b <- mgccaAudit(av, L = 2, strata = rep("only", nrow(av)))
     expect_identical(a$provenance$pairs, b$provenance$pairs)
     expect_identical(a$graph$kappa, b$graph$kappa)
     expect_equal(a$representation$proportion, b$representation$proportion)
@@ -592,7 +592,7 @@ test_that("degenerate weights are described, not hidden", {
     av <- matrix(TRUE, 6, 2, dimnames = list(NULL, c("A", "B")))
     # one individual carries all the weight: ESS falls to nearly 1
     w <- c(1000, 1, 1, 1, 1, 1)
-    a <- mgcca_audit(av, L = 1, weights = w)
+    a <- mgccaAudit(av, L = 1, weights = w)
     expect_equal(a$representation$ess, rep(sum(w)^2 / sum(w^2), 2))
     expect_lt(a$representation$ess[1], 1.1)
     expect_equal(a$representation$max_weight, rep(1000, 2))
@@ -601,7 +601,7 @@ test_that("degenerate weights are described, not hidden", {
                           a$representation$advisory)))
 
     # equal weights: ESS is exactly the count, concentration exactly zero
-    b <- mgcca_audit(av, L = 1, weights = rep(7, 6))
+    b <- mgccaAudit(av, L = 1, weights = rep(7, 6))
     expect_equal(b$representation$ess, rep(6, 2))
     expect_equal(b$representation$weight_concentration, rep(0, 2))
 })
@@ -630,13 +630,13 @@ test_that("availability from blocks, from HDF5 and by hand are identical", {
         try(BigDataStatMeth::hdf5_close_all(), silent = TRUE)
         unlink(h5)
     }, add = TRUE)
-    desc <- mgcca_import_hdf5(blocks, filename = h5, overwriteFile = TRUE)
+    desc <- mgccaImportHDF5(blocks, filename = h5, overwriteFile = TRUE)
     try(BigDataStatMeth::hdf5_close_all(), silent = TRUE)
 
-    from_mem <- mgcca_audit(blocks, L = 2)
-    from_h5 <- mgcca_audit(desc, L = 2)
-    from_path <- mgcca_audit(h5, L = 2)
-    from_hand <- mgcca_audit(hand, L = 2)
+    from_mem <- mgccaAudit(blocks, L = 2)
+    from_h5 <- mgccaAudit(desc, L = 2)
+    from_path <- mgccaAudit(h5, L = 2)
+    from_hand <- mgccaAudit(hand, L = 2)
 
     expect_identical(from_mem$table, hand)
     expect_identical(from_h5$table, hand)
@@ -664,9 +664,9 @@ test_that("availability from blocks, from HDF5 and by hand are identical", {
 
 test_that("blocks without individual IDs are refused, as mgcca refuses them", {
     blocks <- list(a = matrix(1, 4, 2), b = matrix(1, 4, 2))
-    expect_error(mgcca_audit(blocks, L = 1), "no rownames")
-    expect_error(mgcca_audit(42, L = 1), "unsupported input type")
-    expect_error(mgcca_audit("no-such-file.h5", L = 1), "does not exist")
+    expect_error(mgccaAudit(blocks, L = 1), "no rownames")
+    expect_error(mgccaAudit(42, L = 1), "unsupported input type")
+    expect_error(mgccaAudit("no-such-file.h5", L = 1), "does not exist")
 })
 
 
@@ -686,14 +686,14 @@ test_that("a saved audit comes back whole", {
         try(BigDataStatMeth::hdf5_close_all(), silent = TRUE)
         unlink(h5)
     }, add = TRUE)
-    desc <- mgcca_import_hdf5(blocks, filename = h5, overwriteFile = TRUE)
+    desc <- mgccaImportHDF5(blocks, filename = h5, overwriteFile = TRUE)
     try(BigDataStatMeth::hdf5_close_all(), silent = TRUE)
 
     # a fixture that exercises every component: a transfer route with its
     # bottleneck, advisory codes, declared strata AND declared weights
     st <- rep(c("s1", "s2"), each = 30)
     w <- rep(c(1, 2, 3), each = 20)
-    a <- mgcca_audit(desc, L = 2, strata = st, weights = w, save_hdf5 = TRUE)
+    a <- mgccaAudit(desc, L = 2, strata = st, weights = w, save_hdf5 = TRUE)
 
     expect_false(is.null(a$saved))
     expect_equal(a$saved$group, "availability_audit")
@@ -701,7 +701,7 @@ test_that("a saved audit comes back whole", {
                       "pair_codes", "advisory_codes", "strata", "weights",
                       "adjacency", "kappa") %in% a$saved$tables))
 
-    b <- mgcca_audit_load(h5)
+    b <- mgccaAuditLoad(h5)
     expect_s3_class(b, "mgcca_audit")
     expect_identical(a, b)
 
@@ -711,17 +711,17 @@ test_that("a saved audit comes back whole", {
                     list(strata = rep(c("a", "b", "c"), each = 20),
                          weights = NULL, L = 1L),
                     list(strata = NULL, weights = c(rep(1, 59), 500), L = 2L))) {
-        aa <- mgcca_audit(desc, L = cs$L, strata = cs$strata,
-                          weights = cs$weights, save_hdf5 = TRUE)
-        expect_identical(aa, mgcca_audit_load(h5))
+        aa <- mgccaAudit(desc, L = cs$L, strata = cs$strata,
+                         weights = cs$weights, save_hdf5 = TRUE)
+        expect_identical(aa, mgccaAuditLoad(h5))
     }
 
-    a2 <- mgcca_audit(desc, L = 3, save_hdf5 = TRUE)
-    b2 <- mgcca_audit_load(h5)
+    a2 <- mgccaAudit(desc, L = 3, save_hdf5 = TRUE)
+    b2 <- mgccaAuditLoad(h5)
     expect_identical(a2, b2)
     expect_false(b2$strata_declared)
     expect_false(b2$weights_declared)
-    expect_identical(mgcca_audit_load(h5, check_inputs = FALSE), b2)
+    expect_identical(mgccaAuditLoad(h5, check_inputs = FALSE), b2)
 
     # what is on disk is inspectable, not a blob: the legend names the codes
     leg <- BigDataStatMeth::hdf5_matrix(h5, "availability_audit/pair_codes")
@@ -744,9 +744,9 @@ test_that("a saved audit comes back whole", {
 })
 
 test_that("saving needs somewhere to save to, and loading needs an audit there", {
-    expect_error(mgcca_audit(ad_chain(), L = 2, save_hdf5 = TRUE),
+    expect_error(mgccaAudit(ad_chain(), L = 2, save_hdf5 = TRUE),
                  "needs an HDF5-backed design")
-    expect_error(mgcca_audit(ad_chain(), L = 2, save_hdf5 = "yes"),
+    expect_error(mgccaAudit(ad_chain(), L = 2, save_hdf5 = "yes"),
                  "must be TRUE or FALSE")
 
     h5 <- tempfile(fileext = ".h5")
@@ -761,8 +761,8 @@ test_that("saving needs somewhere to save to, and loading needs an audit there",
     if (is.function(hm$close)) hm$close()
     try(BigDataStatMeth::hdf5_close_all(), silent = TRUE)
 
-    expect_error(mgcca_audit_load(h5), "no mgcca audit is stored")
-    expect_error(mgcca_audit_load("no-such-file.h5"), "does not exist")
+    expect_error(mgccaAuditLoad(h5), "no mgcca audit is stored")
+    expect_error(mgccaAuditLoad("no-such-file.h5"), "does not exist")
 })
 
 test_that("the loader reads what is stored rather than recomputing it", {
@@ -782,9 +782,9 @@ test_that("the loader reads what is stored rather than recomputing it", {
         try(BigDataStatMeth::hdf5_close_all(), silent = TRUE)
         unlink(h5)
     }, add = TRUE)
-    desc <- mgcca_import_hdf5(blocks, filename = h5, overwriteFile = TRUE)
+    desc <- mgccaImportHDF5(blocks, filename = h5, overwriteFile = TRUE)
     try(BigDataStatMeth::hdf5_close_all(), silent = TRUE)
-    a <- mgcca_audit(desc, L = 2, save_hdf5 = TRUE)
+    a <- mgccaAudit(desc, L = 2, save_hdf5 = TRUE)
 
     hm <- BigDataStatMeth::hdf5_matrix(h5, "availability_audit/pairs")
     pm <- as.matrix(hm)
@@ -799,13 +799,13 @@ test_that("the loader reads what is stored rather than recomputing it", {
     if (is.function(hm$close)) hm$close()
     try(BigDataStatMeth::hdf5_close_all(), silent = TRUE)
 
-    expect_warning(b <- mgcca_audit_load(h5), "does not match what its own")
+    expect_warning(b <- mgccaAuditLoad(h5), "does not match what its own")
     expect_equal(b$provenance$pairs$n_jk[1L], 12345L)
     expect_false(identical(a$provenance$pairs, b$provenance$pairs))
 
     # and with the cross-check switched off it is silent, but still the stored
     # value that comes back
-    expect_no_warning(d <- mgcca_audit_load(h5, check_inputs = FALSE))
+    expect_no_warning(d <- mgccaAuditLoad(h5, check_inputs = FALSE))
     expect_equal(d$provenance$pairs$n_jk[1L], 12345L)
 })
 
@@ -814,7 +814,7 @@ test_that("the loader reads what is stored rather than recomputing it", {
 # about what the code CALLS.
 audit_module_code <- function() {
     ns <- asNamespace("mgcca")
-    nms <- c("mgcca_audit", "mgcca_audit_load",
+    nms <- c("mgccaAudit", "mgccaAuditLoad",
              grep("^\\.mgcca_av_", ls(ns, all.names = TRUE), value = TRUE),
              "print.mgcca_audit", "summary.mgcca_audit", "plot.mgcca_audit")
     src <- unlist(lapply(nms, function(n) deparse(get(n, envir = ns))))
@@ -920,9 +920,9 @@ ad_vignette <- function() {
                 proteins    = rep(TRUE, length(ids)),
                 metabolites = seq_along(ids) %in% 61:85)
     rownames(av) <- ids
-    mgcca_audit(av, L = 2,
-                strata = rep(c("cohort A", "cohort B"), length.out = 85),
-                weights = ifelse(seq_along(ids) %in% 1:60, 1, 3))
+    mgccaAudit(av, L = 2,
+               strata = rep(c("cohort A", "cohort B"), length.out = 85),
+               weights = ifelse(seq_along(ids) %in% 1:60, 1, 3))
 }
 
 # the module's internal constants, reached the same way the earlier tests reach
@@ -992,7 +992,7 @@ test_that("V2 and V6: DIRECT is strongest, and the two neutrals differ", {
     # structural zero additionally carries its own glyph
     expect_gt(abs(l[["UNSUPPORTED"]] - l[["STRUCTURAL_ZERO"]]), 0.15)
 
-    dis <- mgcca_audit(ad_disconnected(), L = 2)
+    dis <- mgccaAudit(ad_disconnected(), L = 2)
     grDevices::pdf(NULL)
     on.exit(grDevices::dev.off(), add = TRUE)
     p <- plot(dis, type = "matrix")
@@ -1054,7 +1054,7 @@ test_that("V7: a provenance overlay always carries the rank-L condition", {
 
     # when the audit stored alternative routes, the subtitle says so rather
     # than letting one route look privileged
-    cyc <- mgcca_audit(ad_cycle(), L = 2)
+    cyc <- mgccaAudit(ad_cycle(), L = 2)
     p2 <- plot(cyc, type = "graph", pair = c("A", "C"))
     expect_true(pair_of(cyc, "A", "C", "alternative_paths"))
     expect_match(p2$labels$subtitle, "alternative routes exist", fixed = TRUE)
@@ -1070,10 +1070,10 @@ test_that("the provenance overlay refuses pairs it cannot draw a route for", {
                       pair = c("methylation", "expression")),
                  "no transfer route to draw")
     # STRUCTURAL_ZERO and UNSUPPORTED
-    expect_error(plot(mgcca_audit(ad_disconnected(), L = 2), type = "graph",
+    expect_error(plot(mgccaAudit(ad_disconnected(), L = 2), type = "graph",
                       pair = c("A", "C")),
                  "coded STRUCTURAL_ZERO")
-    expect_error(plot(mgcca_audit(ad_thin(), L = 2), type = "graph",
+    expect_error(plot(mgccaAudit(ad_thin(), L = 2), type = "graph",
                       pair = c("A", "B")),
                  "coded UNSUPPORTED")
     # and the plain input errors
@@ -1097,12 +1097,12 @@ test_that("the matrix prints the support quantity its class calls for", {
                         as.character(a$provenance$pairs$n_jk)))
     expect_true(all(grepl("^B=", lab[names(lab) == "MODEL_TRANSFER_ELIGIBLE"])))
 
-    z <- plot(mgcca_audit(ad_disconnected(), L = 2), type = "matrix")
+    z <- plot(mgccaAudit(ad_disconnected(), L = 2), type = "matrix")
     zt <- Filter(function(l) inherits(l$geom, "GeomText") &&
                      "code" %in% names(l$data), z$layers)[[1L]]$data
     expect_identical(unique(zt$label[zt$code == "STRUCTURAL_ZERO"]), "0")
 
-    u <- plot(mgcca_audit(ad_thin(), L = 2), type = "matrix")
+    u <- plot(mgccaAudit(ad_thin(), L = 2), type = "matrix")
     ut <- Filter(function(l) inherits(l$geom, "GeomText") &&
                      "code" %in% names(l$data), u$layers)[[1L]]$data
     expect_identical(unique(ut$label[ut$code == "UNSUPPORTED"]), "")
@@ -1117,7 +1117,7 @@ test_that("the graph node order is component, then degree, then name", {
     m[1:30, c("b", "c", "d")] <- TRUE
     m[31:55, c("b", "e")] <- TRUE
     m[56:75, "a"] <- TRUE
-    a <- mgcca_audit(m, L = 2)
+    a <- mgccaAudit(m, L = 2)
     expect_equal(a$graph$n_components, 2L)
 
     node_order <- av_internal(".mgcca_av_node_order")
@@ -1152,7 +1152,7 @@ test_that("pattern ordering is frequency, then lexicographic, deterministically"
                  cbind(A = TRUE, B = TRUE, C = FALSE),
                  cbind(A = FALSE, B = TRUE, C = TRUE),
                  cbind(A = FALSE, B = TRUE, C = TRUE))
-    pt <- plot(mgcca_audit(tie, L = 1), type = "patterns")
+    pt <- plot(mgccaAudit(tie, L = 1), type = "patterns")
     tb <- Filter(function(l) inherits(l$geom, "GeomCol"), pt$layers)[[1L]]$data
     expect_identical(rev(levels(tb$pattern)), c("011", "110"))
 
@@ -1192,7 +1192,7 @@ test_that("each recoloured panel encodes a variable, not decoration", {
     m <- matrix(FALSE, 60, 3, dimnames = list(NULL, c("A", "B", "C")))
     m[1:30, c("A", "B")] <- TRUE
     m[31:60, "C"] <- TRUE
-    g2 <- plot(mgcca_audit(m, L = 2), type = "graph")
+    g2 <- plot(mgccaAudit(m, L = 2), type = "graph")
     nd <- Filter(function(l) inherits(l$geom, "GeomPoint"), g2$layers)[[1L]]$data
     expect_length(levels(nd$component), 2L)
 
@@ -1208,12 +1208,12 @@ test_that("each recoloured panel encodes a variable, not decoration", {
                              r$data$measure == levels(r$data$measure)[1L]]))
 
     # with no strata declared the single-level key is suppressed, not shown
-    plain <- plot(mgcca_audit(ad_bridge(), L = 2), type = "representation")
+    plain <- plot(mgccaAudit(ad_bridge(), L = 2), type = "representation")
     expect_identical(plain$guides$guides$fill, "none")
 })
 
 test_that("the representation panel falls back to counts with no weights", {
-    a <- mgcca_audit(ad_bridge(), L = 2)
+    a <- mgccaAudit(ad_bridge(), L = 2)
     expect_false(a$weights_declared)
     p <- plot(a, type = "representation")
     expect_true(any(grepl("no weights declared", levels(p$data$measure))))
@@ -1320,7 +1320,7 @@ test_that("the patterns panel names every block, however many there are", {
                   metabolites = i %in% 101:140,
                   microbiome  = i %in% 101:140)
     rownames(wide) <- sprintf("id%03d", i)
-    six <- mgcca_audit(wide, L = 2)
+    six <- mgccaAudit(wide, L = 2)
     expect_identical(block_labels(six), six$blocks)
 
     # and the count panel still gets numbers, not block names
@@ -1359,7 +1359,7 @@ test_that("a single-block pattern is drawn in its place, not at the top", {
                 C = i %in% c(1:40, 66:83, 96:107),
                 D = i %in% c(1:40, 84:95, 96:107))
     rownames(av) <- sprintf("id%03d", i)
-    a <- mgcca_audit(av, L = 2)
+    a <- mgccaAudit(av, L = 2)
 
     # 1111 = 40, 1100 = 25, 0010 = 18, 0001 = 12, 0011 = 12: frequency
     # descending, and the exact tie broken by the pattern key ascending
@@ -1385,7 +1385,7 @@ test_that("a single-block pattern is drawn in its place, not at the top", {
                   metabolites = j %in% c(1:45, 86:95),
                   microbiome  = j %in% c(1:45, 86:95))
     rownames(wide) <- sprintf("id%03d", j)
-    six2 <- mgcca_audit(wide, L = 2)
+    six2 <- mgccaAudit(wide, L = 2)
 
     # 111111 = 45, 111000 = 25, 000100 = 15, 000011 = 10, 010000 = 10
     six_top_down <- rev(y_limits(six2))

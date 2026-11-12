@@ -54,7 +54,7 @@ Rcpp::List reliability_gram_block(std::string filename, std::string in_group,
 
 //' Weighted operator, eigenbasis and per-block resolvents (reliability phase R2)
 //' @param balance If \code{TRUE}, weight each block's summand by its top-L
-//'   balancing weight before the sum (see \code{\link{mgcca_sensitivity}});
+//'   balancing weight before the sum (see \code{\link{mgccaSensitivity}});
 //'   if \code{FALSE}, every weight is one.
 //' @return A list with the operator \code{S}, its eigenbasis \code{V} and
 //'   eigenvalues \code{mu}, the availability weights \code{D}, the per-block

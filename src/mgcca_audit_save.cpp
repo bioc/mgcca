@@ -23,7 +23,7 @@
 // same arguments: the same dataset type, the same default compression, the
 // same dimnames convention, and the same treatment of a matrix whose rownames
 // or colnames are absent. A file written here is the file the R-level loop
-// wrote, and mgcca_audit_load() reads either.
+// wrote, and mgccaAuditLoad() reads either.
 //
 // [[Rcpp::depends(BH, RcppEigen, Rhdf5lib, BigDataStatMeth)]]
 #include <BigDataStatMeth.hpp>

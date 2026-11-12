@@ -289,13 +289,13 @@ test_that("getSignif() accepts a vector of tables", {
 test_that("getSignif() points at the call that collects p-values", {
   fit <- signif_fixture()
   fit$pval.cor <- NULL
-  expect_error(getSignif(fit), "mgcca_results")
+  expect_error(getSignif(fit), "mgccaResults")
   expect_error(getSignif(fit), "outputs")
 })
 
-# mgcca_permtest() -------------------------------------------------------
+# mgccaPermtest() -------------------------------------------------------
 
-test_that("mgcca_permtest() removes the HDF5 file of every permutation", {
+test_that("mgccaPermtest() removes the HDF5 file of every permutation", {
   n <- 14L
   ids <- paste0("i", sprintf("%02d", seq_len(n)))
   mk <- function(off, p) {
@@ -311,8 +311,8 @@ test_that("mgcca_permtest() removes the HDF5 file of every permutation", {
   before <- list.files(tempdir(), pattern = "\\.h5$")
   set.seed(11)
   pt <- suppressMessages(
-    mgcca_permtest(X, filename = h5, nperm = 3L, nfac = 2L,
-                   method = "penalized", lambda = rep(0.1, 3)))
+    mgccaPermtest(X, filename = h5, nperm = 3L, nfac = 2L,
+                  method = "penalized", lambda = rep(0.1, 3)))
   after <- list.files(tempdir(), pattern = "\\.h5$")
 
   expect_length(pt$eigenvalues, 2L)

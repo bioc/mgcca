@@ -2,7 +2,7 @@
 #'
 #' @description Compute the two-sided p-value of a Pearson correlation
 #'   coefficient from the coefficient and the sample size, without needing the
-#'   underlying data. Used internally by \code{\link{mgcca_results}} to turn the
+#'   underlying data. Used internally by \code{\link{mgccaResults}} to turn the
 #'   between-table correlations into p-values, and exported because it is useful
 #'   on its own.
 #'

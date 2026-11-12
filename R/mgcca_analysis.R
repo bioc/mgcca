@@ -10,7 +10,7 @@
 #'   result against clinical or technical annotation.
 #'
 #' @param x an \code{mgcca} object (from \code{\link{mgcca}} /
-#'   \code{\link{mgcca_results}}).
+#'   \code{\link{mgccaResults}}).
 #' @param phenotypes a single vector (factor or numeric), a named \code{list} of
 #'   such vectors, or a \code{data.frame}. Named vectors / data-frame row names
 #'   are matched to the individuals of \code{x}; otherwise they are assumed to be
@@ -19,7 +19,7 @@
 #' @return A \code{data.frame} with one row per (phenotype, component):
 #'   \code{phenotype}, \code{component}, \code{R2}, \code{p}, \code{n} (non-missing
 #'   individuals) and \code{p.adj} (Benjamini-Hochberg across all rows).
-#' @seealso \code{\link{plotIndividuals}}, \code{\link{mgcca_permtest}}
+#' @seealso \code{\link{plotIndividuals}}, \code{\link{mgccaPermtest}}
 #' @examples
 #' data(cardiovascular)
 #' ids <- Reduce(union, list(rownames(X1), rownames(X2), rownames(X3)))[1:150]
@@ -39,11 +39,11 @@
 #'     age   = rnorm(nrow(fit$Y), 55, 8),
 #'     row.names = rownames(fit$Y))
 #'
-#' a <- mgcca_associate(fit, pheno)
+#' a <- mgccaAssociate(fit, pheno)
 #' a
 #' a[a$p.adj < 0.05, ]
 #' @export
-mgcca_associate <- function(x, phenotypes, comps = NULL) {
+mgccaAssociate <- function(x, phenotypes, comps = NULL) {
     .check_mgcca(x)
     Y <- as.matrix(x$Y)
     if (is.null(comps)) comps <- seq_len(ncol(Y))
@@ -113,7 +113,7 @@ mgcca_associate <- function(x, phenotypes, comps = NULL) {
 #' @return A list with \code{eigenvalues} (observed, descending), \code{p.value}
 #'   (per component), the \code{null} matrix (\code{nperm} x \code{nfac}) and
 #'   \code{nperm}.
-#' @seealso \code{\link{mgcca_associate}}
+#' @seealso \code{\link{mgccaAssociate}}
 #' @examples
 #' ## A toy run, small enough to execute here: two three-column blocks over 40
 #' ## individuals and nperm = 2. With two permutations the p-values cannot fall
@@ -126,9 +126,9 @@ mgcca_associate <- function(x, phenotypes, comps = NULL) {
 #' rownames(one) <- rownames(two) <- ids
 #'
 #' h5toy <- tempfile(fileext = ".h5")
-#' pt0 <- mgcca_permtest(list(one = one, two = two), filename = h5toy,
-#'                       nperm = 2, nfac = 2, method = "penalized",
-#'                       lambda = rep(0.1, 2))
+#' pt0 <- mgccaPermtest(list(one = one, two = two), filename = h5toy,
+#'                      nperm = 2, nfac = 2, method = "penalized",
+#'                      lambda = rep(0.1, 2))
 #' pt0$eigenvalues
 #' unlink(h5toy)
 #'
@@ -147,16 +147,16 @@ mgcca_associate <- function(x, phenotypes, comps = NULL) {
 #'           other = num(X3, 1:4))
 #'
 #' h5 <- tempfile(fileext = ".h5")
-#' pt <- mgcca_permtest(X, filename = h5, nperm = 9, nfac = 2,
-#'                      method = "penalized", lambda = rep(0.1, 3))
+#' pt <- mgccaPermtest(X, filename = h5, nperm = 9, nfac = 2,
+#'                     method = "penalized", lambda = rep(0.1, 3))
 #' pt$eigenvalues
 #' pt$p.value          # nperm = 9 bounds these below at 0.1
 #' unlink(h5)
 #' }
 #' @export
-mgcca_permtest <- function(x, filename = tempfile(fileext = ".h5"), nperm = 99,
-                           nfac = 2, method = "penalized", lambda = NULL,
-                           route = "auto", scale = TRUE, ...) {
+mgccaPermtest <- function(x, filename = tempfile(fileext = ".h5"), nperm = 99,
+                          nfac = 2, method = "penalized", lambda = NULL,
+                          route = "auto", scale = TRUE, ...) {
     fit0 <- mgcca(x, filename = filename, nfac = nfac, method = method,
                   lambda = lambda, route = route, scale = scale,
                   collect = FALSE, ...)

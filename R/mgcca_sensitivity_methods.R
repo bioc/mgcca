@@ -7,12 +7,12 @@
 #'   does not hold.
 #'
 #' @param object An object of class \code{"mgcca_sensitivity"}, as returned by
-#'   \code{mgcca_sensitivity()}.
+#'   \code{mgccaSensitivity()}.
 #' @param ... Ignored.
 #' @return \code{print()} returns its argument invisibly, and
 #'   \code{summary()} returns \code{object} invisibly; both are called for what
 #'   they write to the console.
-#' @rdname mgcca_sensitivity
+#' @rdname mgccaSensitivity
 #' @export
 print.mgcca_sensitivity <- function(x, ...) {
     s <- x$settings
@@ -52,7 +52,7 @@ print.mgcca_sensitivity <- function(x, ...) {
 #'   sensitivity contribution. The share it displays there is taken against
 #'   the query's own total, not the \code{by_individual} table's
 #'   \code{share_total}, which is a share within one block.
-#' @rdname mgcca_sensitivity
+#' @rdname mgccaSensitivity
 #' @export
 summary.mgcca_sensitivity <- function(object, ...) {
     print(object)
@@ -150,7 +150,7 @@ summary.mgcca_sensitivity <- function(object, ...) {
 #'   there is nothing to rotate.
 #' @param ... Ignored.
 #' @return A \code{ggplot} object, which draws when printed.
-#' @seealso \code{\link{mgcca_sensitivity}}, which produces the object plotted
+#' @seealso \code{\link{mgccaSensitivity}}, which produces the object plotted
 #'   here.
 #' @examples
 #' ## A small three-block slice of the shipped cohort; the fit must be
@@ -173,7 +173,7 @@ summary.mgcca_sensitivity <- function(object, ...) {
 #' grp <- stats::setNames(
 #'     ifelse(cd4 > stats::median(cd4), "CD4T high", "CD4T low"),
 #'     rownames(X$cells))
-#' sens <- mgcca_sensitivity(fit, query = bmi, group = grp)
+#' sens <- mgccaSensitivity(fit, query = bmi, group = grp)
 #'
 #' ## Where the sensitivity sits, block by block, with the between-group part
 #' ## drawn inside the total rather than beside it.
@@ -201,7 +201,7 @@ plot.mgcca_sensitivity <- function(x, type = c("blocks", "overall", "map",
         bi <- x[["by_individual"]]
         if (is.null(bi) || !nrow(bi))
             stop("this result carries no per-individual decomposition; it was ",
-                 "produced by an older version of mgcca_sensitivity()", call. = FALSE)
+                 "produced by an older version of mgccaSensitivity()", call. = FALSE)
         if (!is.numeric(top_n) || length(top_n) != 1L || !is.finite(top_n) ||
             top_n < 1)
             stop("`top_n` must be a single number of participants to draw, ",
@@ -321,7 +321,7 @@ plot.mgcca_sensitivity <- function(x, type = c("blocks", "overall", "map",
         R <- x$reference
         if (is.null(R) || is.null(R$Y))
             stop("this result carries no reference subspace; it was produced by an ",
-                 "older version of mgcca_sensitivity()", call. = FALSE)
+                 "older version of mgccaSensitivity()", call. = FALSE)
         L <- ncol(R$Y)
         if (max(comps) > L || min(comps) < 1 || length(comps) != 2)
             stop("`comps` must be two component numbers between 1 and ", L, call. = FALSE)

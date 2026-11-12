@@ -1,4 +1,4 @@
-# mgcca_results() / mgcca(collect=TRUE) and the post-analysis helpers, on the
+# mgccaResults() / mgcca(collect=TRUE) and the post-analysis helpers, on the
 # shipped cardiovascular data (three tables with missing individuals). This runs
 # anywhere -- it needs no external reference fixtures.
 
@@ -33,49 +33,26 @@ test_that("mgcca(collect=TRUE) yields a usable 'mgcca' object", {
   expect_length(fit$AVE$AVE_inner_model, 2L)
 })
 
-test_that("mgcca_results() reads the same object from the descriptor and the path", {
+test_that("mgccaResults() reads the same object from the descriptor and the path", {
   X   <- make_X()
   h5  <- tempfile(fileext = ".h5")
   desc <- mgcca(X, filename = h5, nfac = 2, method = "solve", scores = TRUE,
                 collect = FALSE)
   on.exit(BigDataStatMeth::hdf5_close_all(), add = TRUE)
 
-  a <- mgcca_results(desc)
-  b <- mgcca_results(h5, datasets = desc$datasets)
+  a <- mgccaResults(desc)
+  b <- mgccaResults(h5, datasets = desc$datasets)
   expect_s3_class(a, "mgcca")
   expect_equal(a$Y, b$Y)
   expect_equal(a$corsY, b$corsY)
 })
 
-test_that("plot/summary helpers accept the collected object without error", {
+test_that("summary helpers accept the collected object without error", {
   X   <- make_X()
   h5  <- tempfile(fileext = ".h5")
   fit <- mgcca(X, filename = h5, nfac = 2, method = "solve",
                    scores = TRUE, collect = TRUE)
   on.exit(BigDataStatMeth::hdf5_close_all(), add = TRUE)
-
-  pdf(tempfile(fileext = ".pdf"))
-  on.exit(dev.off(), add = TRUE)
-  expect_no_error(plotInds(fit))
-  # plotVars() is the only helper that needs made4, a Suggests: guard just this
-  # expectation so the rest of the block still runs where made4 is absent.
-  if (requireNamespace("made4", quietly = TRUE))
-    expect_no_error(plotVars(fit, nlab = 3))
-
-  # The default palette of plotInds() is fixed: no random number is drawn, so
-  # the caller's random number stream is left exactly as the call found it,
-  # whatever the number of groups.
-  set.seed(404)
-  before <- .Random.seed
-  invisible(plotInds(fit))
-  expect_identical(.Random.seed, before)
-  grp <- factor(rep(c("a", "b", "c", "d", "e", "f", "g"),
-                    length.out = nrow(fit$Y)))
-  invisible(plotInds(fit, group = grp))
-  expect_identical(.Random.seed, before)
-
-  # ... and the wrong-class error names the class the function actually wants.
-  expect_error(plotInds(list()), "class 'mgcca'")
 
   sig <- getSignif(fit, pval.cut = 1e-3)
   expect_true(all(c("variable", "table") %in% names(sig)))

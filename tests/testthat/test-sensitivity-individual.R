@@ -136,7 +136,7 @@ perind_total <- function(s) {
     stats::setNames(v[, 1L], rownames(v))
 }
 
-perind_sens <- function(...) suppressMessages(mgcca_sensitivity(...))
+perind_sens <- function(...) suppressMessages(mgccaSensitivity(...))
 
 # The grouped and ungrouped sensitivity of the shared fit at the shared query:
 # eight of the tests below start from exactly one of these two objects.

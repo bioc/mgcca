@@ -157,7 +157,7 @@ Rcpp::List mgcca_read_attrs_rcpp(std::string filename, std::string group,
 //'
 //' Returns the names of the objects (datasets and subgroups) directly under
 //' \code{group}, without depending on the rhdf5 package. Used by
-//' \code{mgcca_load} to auto-discover table names in files written before the
+//' \code{mgccaLoad} to auto-discover table names in files written before the
 //' provenance manifest existed.
 //'
 //' @param filename Path to the HDF5 file.

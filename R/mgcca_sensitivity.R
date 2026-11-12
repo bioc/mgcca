@@ -64,7 +64,7 @@
 #' @param x A fitted object of class \code{"mgcca"}. It must carry a descriptor
 #'   pointing at an HDF5 file that still contains the input blocks: the source
 #'   data is required, and a results-only object is refused rather than
-#'   half-processed. Use \code{\link{mgcca_load}} to obtain one from a file.
+#'   half-processed. Use \code{\link{mgccaLoad}} to obtain one from a file.
 #'   For the \code{print} method documented below, an object of class
 #'   \code{"mgcca_sensitivity"} instead.
 #' @param query Numeric vector or matrix over participants. A vector must be
@@ -165,8 +165,8 @@
 #'   sensitivity contributions, not variance, uncertainty, causal influence, or
 #'   reliability guarantees.
 #'
-#' @seealso \code{\link{mgcca_block_profile}} to reformat the per-block
-#'   decomposition, \code{\link{mgcca_stability}} for the resampling companion,
+#' @seealso \code{\link{mgccaBlockProfile}} to reformat the per-block
+#'   decomposition, \code{\link{mgccaStability}} for the resampling companion,
 #'   and \code{\link{mgcca}} for the fit itself.
 #' @examples
 #' ## A small three-block slice of the shipped cohort. The reliability layer
@@ -194,7 +194,7 @@
 #'     ifelse(cd4 > stats::median(cd4), "CD4T high", "CD4T low"),
 #'     rownames(X$cells))
 #'
-#' sens <- mgcca_sensitivity(fit, query = bmi, group = grp)
+#' sens <- mgccaSensitivity(fit, query = bmi, group = grp)
 #' sens
 #'
 #' ## Read the ratio with its components, never alone.
@@ -204,11 +204,11 @@
 #' ## summary() adds the per-block decomposition to what print() shows.
 #' summary(sens)
 #' @export
-mgcca_sensitivity <- function(x, query, group = NULL, covariates = NULL,
-                              lambda = NULL, gamma = 1,
-                              store_name = "sensitivity",
-                              backend = c("auto", "memory", "hdf5"),
-                              block_size = 0L, store = FALSE, threads = NULL) {
+mgccaSensitivity <- function(x, query, group = NULL, covariates = NULL,
+                             lambda = NULL, gamma = 1,
+                             store_name = "sensitivity",
+                             backend = c("auto", "memory", "hdf5"),
+                             block_size = 0L, store = FALSE, threads = NULL) {
     cl <- match.call()
     .mgcca_refuse_memory(x)          # in-memory fits have no source blocks on disk
     backend <- match.arg(backend)
@@ -427,11 +427,11 @@ mgcca_sensitivity <- function(x, query, group = NULL, covariates = NULL,
 .mgcca_rel_context <- function(x) {
     if (!inherits(x, "mgcca"))
         stop("`x` must be a fitted object of class \"mgcca\". ",
-             "If you have a file, load it first with mgcca_load().", call. = FALSE)
+             "If you have a file, load it first with mgccaLoad().", call. = FALSE)
     d <- attr(x, "desc")
     if (is.null(d))
         stop("this \"mgcca\" object carries no provenance descriptor, so the input ",
-             "blocks cannot be located. Refit, or reload the fit with mgcca_load().",
+             "blocks cannot be located. Refit, or reload the fit with mgccaLoad().",
              call. = FALSE)
     if (is.null(d$filename) || !nzchar(d$filename) || !file.exists(d$filename))
         stop("the fit's HDF5 file is not available (",

@@ -2,7 +2,7 @@
 // Runs all stages in one C++ call (no inter-stage handle churn): getK -> XKX ->
 // eigen/Y -> corsY/pval/AVE -> (optional) scores. Data must already be in the
 // HDF5 file under `in_group` (individuals x variables, rownames = individual IDs)
-// -- use mgcca_import_hdf5() on the R side to write any input type there.
+// -- use mgccaImportHDF5() on the R side to write any input type there.
 // Results are written under `final_group`; intermediates under `tmp_group`.
 //
 // [[Rcpp::depends(BH, RcppEigen, Rhdf5lib, BigDataStatMeth)]]
@@ -32,7 +32,7 @@ using namespace Rcpp;
 //' @param threads Optional thread count.
 //' @return A descriptor list (filename, datasets, nfac, m, eigenvalues, route,
 //'   route_dual, final_group). Results are written under \code{final_group}.
-//' @seealso \code{\link{mgcca}}, \code{\link{mgcca_results}}
+//' @seealso \code{\link{mgcca}}, \code{\link{mgccaResults}}
 //' @keywords internal
 // [[Rcpp::export]]
 Rcpp::List mgcca_rcpp(std::string filename, std::string in_group,

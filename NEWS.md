@@ -1,3 +1,16 @@
+# mgcca 0.99.8
+
+- Exported functions now follow one naming convention, camelCase: the twelve
+  `mgcca_*` functions drop their underscores (`mgcca_results()` is now
+  `mgccaResults()`) and acronyms go uppercase (`mgcca_import_hdf5()` is now
+  `mgccaImportHDF5()`). Arguments, results and class names are unchanged.
+- `mgcca_load()`, `mgcca_audit()` and `mgcca_select_lambda()` keep working as
+  aliases of the new names; they will be removed in a later release.
+- `plotInds()` and `plotVars()` are removed; use `plotIndividuals()` and
+  `plotVariables()`. made4, wordcloud and ggthemes are no longer needed.
+- The functions that refuse to reopen a file held by `mgccaSensitivity()` or
+  `mgccaStability()` now recognise it whatever form its path takes.
+
 # mgcca 0.99.7
 
 - `mgcca_sensitivity()` now balances the tables with their top-L weights, as

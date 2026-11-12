@@ -184,8 +184,8 @@
 }
 
 # ---- the layer's own ridge --------------------------------------------------
-# ⚠️ THE RELIABILITY LAYER CHOOSES ITS OWN RIDGE, and neither obvious shortcut is
-# right.
+# WARNING: THE RELIABILITY LAYER CHOOSES ITS OWN RIDGE, and neither obvious
+# shortcut is right.
 #
 # ZERO IS ALWAYS WRONG, and for a reason that is easy to state incorrectly. A block
 # Gram is n x n in PARTICIPANTS, so its rank is at most min(n, p_j). Centring costs
@@ -234,10 +234,10 @@
 # Writes a result under RELIABILITY/<name>/ in the fit's own file, with the same
 # attribute-manifest convention the package already uses for FINAL_RESULTS.
 #
-# ⚠️ REFUSES TO OVERWRITE. Two runs with different settings under the same name
-# would leave a file whose contents no longer match its manifest, and nothing
-# downstream could detect it. The caller picks a new name or deletes the old one
-# deliberately.
+# WARNING: REFUSES TO OVERWRITE. Two runs with different settings under the
+# same name would leave a file whose contents no longer match its manifest, and
+# nothing downstream could detect it. The caller picks a new name or deletes
+# the old one deliberately.
 .mgcca_rel_store <- function(res, file, name, tables) {
     grp <- paste0("RELIABILITY/", name)
     existing <- tryCatch(mgcca_list_group_rcpp(file, grp), error = function(e) character(0))

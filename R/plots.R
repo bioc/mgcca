@@ -1,8 +1,7 @@
 # Modern ggplot2-based result plots for mgcca objects (as returned by
-# mgcca_results() / mgcca(collect = TRUE)). These replace the ageing base-R
-# plotInds()/plotVars(): a single consistent, colourblind-safe look, ggplot
-# objects you can further customise, and sensible handling of omics-scale tables
-# (thousands of variables) via top-N labelling.
+# mgccaResults() / mgcca(collect = TRUE)): a single consistent, colourblind-safe
+# look, ggplot objects you can further customise, and sensible handling of
+# omics-scale tables (thousands of variables) via top-N labelling.
 
 # Okabe-Ito colourblind-safe qualitative palette.
 .mgcca_palette <- c("#0072B2", "#D55E00", "#009E73", "#CC79A7", "#E69F00",
@@ -20,7 +19,7 @@
 
 .check_mgcca <- function(x) {
     if (!inherits(x, "mgcca"))
-        stop("'x' must be an 'mgcca' object (see mgcca_results() or ",
+        stop("'x' must be an 'mgcca' object (see mgccaResults() or ",
              "mgcca(collect = TRUE)).", call. = FALSE)
 }
 
@@ -37,11 +36,11 @@
 #' Plot individuals on the shared components
 #'
 #' @description Scatter plot of the shared canonical components \code{Y} (one
-#'   point per individual), optionally coloured by a grouping factor. A modern,
-#'   colourblind-safe replacement for \code{\link{plotInds}} that returns a
-#'   \code{ggplot} object you can further customise.
+#'   point per individual), optionally coloured by a grouping factor, in a
+#'   colourblind-safe palette. Returns a \code{ggplot} object you can further
+#'   customise.
 #'
-#' @param x an \code{mgcca} object (from \code{\link{mgcca_results}} or
+#' @param x an \code{mgcca} object (from \code{\link{mgccaResults}} or
 #'   \code{mgcca(collect = TRUE)}).
 #' @param group optional factor to colour individuals by. If it carries names
 #'   they are matched to the row names of \code{Y}; otherwise it is assumed to be
@@ -132,11 +131,6 @@ plotIndividuals <- function(x, group = NULL, comps = c(1, 2), label = FALSE,
 #'   are drawn as labelled arrows, so the plot stays readable even for
 #'   omics-scale tables; the rest are shown as faint points.
 #'
-#'   Use \code{plotVariables} to look at a single table in detail, as a
-#'   \pkg{ggplot2} correlation circle, and \code{\link{plotVars}} to compare
-#'   several tables at once -- one base-graphics panel per table, drawn through
-#'   \pkg{made4}, with the same chosen variables highlighted in each.
-#'
 #' @param x an \code{mgcca} object.
 #' @param table table to display: a name or an index into \code{x$corsY}.
 #'   Default 1.
@@ -145,8 +139,7 @@ plotIndividuals <- function(x, group = NULL, comps = c(1, 2), label = FALSE,
 #'   labelled arrows. Default 10.
 #' @param title plot title. Default: the table name.
 #' @return A \code{ggplot} object.
-#' @seealso \code{\link{plotVars}}, \code{\link{plotIndividuals}},
-#'   \code{\link{getSignif}}
+#' @seealso \code{\link{plotIndividuals}}, \code{\link{getSignif}}
 #' @examples
 #' data(cardiovascular)
 #' u   <- Reduce(union, list(rownames(X1), rownames(X2), rownames(X3)))

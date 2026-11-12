@@ -1,7 +1,7 @@
 #' Per-block contribution profile of a sensitivity result
 #'
 #' @description Reformats the block-level decomposition that
-#'   \code{\link{mgcca_sensitivity}} already computed: how much of a query's
+#'   \code{\link{mgccaSensitivity}} already computed: how much of a query's
 #'   first-order sensitivity each block carries, and how much of that is carried
 #'   by the grouping.
 #'
@@ -19,11 +19,11 @@
 #' @param query Optional query name, or names, to restrict to. Default: all.
 #' @return An object of class \code{"mgcca_block_profile"}: a data frame with one
 #'   row per query and block, plus the originating provenance.
-#' @seealso \code{\link{mgcca_sensitivity}}
+#' @seealso \code{\link{mgccaSensitivity}}
 #' @examples
-#' ## mgcca_sensitivity() needs the HDF5-backed source blocks of a fit, so the
+#' ## mgccaSensitivity() needs the HDF5-backed source blocks of a fit, so the
 #' ## example works from a minimal stand-in carrying the one element this
-#' ## extractor reads, `by_block` -- exactly the shape mgcca_sensitivity()
+#' ## extractor reads, `by_block` -- exactly the shape mgccaSensitivity()
 #' ## returns for an ungrouped analysis of three blocks and two queries.
 #' sens <- structure(
 #'     list(by_block = data.frame(
@@ -38,15 +38,15 @@
 #'          call = NULL),
 #'     class = "mgcca_sensitivity")
 #'
-#' bp <- mgcca_block_profile(sens)
+#' bp <- mgccaBlockProfile(sens)
 #' bp$profile
 #'
 #' ## restrict to one query
-#' mgcca_block_profile(sens, query = "age")$profile
+#' mgccaBlockProfile(sens, query = "age")$profile
 #' @export
-mgcca_block_profile <- function(x, query = NULL) {
+mgccaBlockProfile <- function(x, query = NULL) {
     if (!inherits(x, "mgcca_sensitivity"))
-        stop("`x` must be the result of mgcca_sensitivity(). ",
+        stop("`x` must be the result of mgccaSensitivity(). ",
              "This function extracts a decomposition that has already been computed; ",
              "it does not compute one.", call. = FALSE)
     d <- x$by_block
@@ -68,7 +68,7 @@ mgcca_block_profile <- function(x, query = NULL) {
 #' Print a block contribution profile
 #'
 #' @description Prints the per-query, per-block table built by
-#'   \code{\link{mgcca_block_profile}}, preceded by a one-line header with the
+#'   \code{\link{mgccaBlockProfile}}, preceded by a one-line header with the
 #'   number of queries and blocks and the grouping the sensitivity was run with.
 #'   When no grouping was supplied, a closing note says so: the between-group
 #'   columns are undefined there, not missing.
@@ -77,10 +77,10 @@ mgcca_block_profile <- function(x, query = NULL) {
 #' @param ... ignored.
 #' @return Called for its side effect (the profile is written to the console).
 #'   Returns \code{x} invisibly.
-#' @seealso \code{\link{mgcca_block_profile}}
+#' @seealso \code{\link{mgccaBlockProfile}}
 #' @examples
-#' ## A minimal stand-in for an ungrouped mgcca_sensitivity() result; see
-#' ## mgcca_block_profile() for why the example does not fit one here.
+#' ## A minimal stand-in for an ungrouped mgccaSensitivity() result; see
+#' ## mgccaBlockProfile() for why the example does not fit one here.
 #' sens <- structure(
 #'     list(by_block = data.frame(
 #'              query = rep(c("age", "bmi"), each = 3),
@@ -94,7 +94,7 @@ mgcca_block_profile <- function(x, query = NULL) {
 #'          call = NULL),
 #'     class = "mgcca_sensitivity")
 #'
-#' print(mgcca_block_profile(sens))
+#' print(mgccaBlockProfile(sens))
 #' @export
 #' @method print mgcca_block_profile
 print.mgcca_block_profile <- function(x, ...) {
@@ -105,7 +105,7 @@ print.mgcca_block_profile <- function(x, ...) {
     cat("\n")
     print(format(x$profile, digits = 4), row.names = FALSE)
     if (!x$grouped)
-        cat("\n  No grouping was supplied to mgcca_sensitivity(), so the between-group\n",
+        cat("\n  No grouping was supplied to mgccaSensitivity(), so the between-group\n",
             "  columns are not shown: they are undefined here, not missing.\n", sep = "")
     invisible(x)
 }
@@ -122,10 +122,10 @@ print.mgcca_block_profile <- function(x, ...) {
 #' @param x An object of class \code{"mgcca_block_profile"}.
 #' @param ... ignored.
 #' @return A \code{ggplot} object. Drawn when printed.
-#' @seealso \code{\link{mgcca_block_profile}}
+#' @seealso \code{\link{mgccaBlockProfile}}
 #' @examples
-#' ## A minimal stand-in for an ungrouped mgcca_sensitivity() result; see
-#' ## mgcca_block_profile() for why the example does not fit one here.
+#' ## A minimal stand-in for an ungrouped mgccaSensitivity() result; see
+#' ## mgccaBlockProfile() for why the example does not fit one here.
 #' sens <- structure(
 #'     list(by_block = data.frame(
 #'              query = rep(c("age", "bmi"), each = 3),
@@ -139,7 +139,7 @@ print.mgcca_block_profile <- function(x, ...) {
 #'          call = NULL),
 #'     class = "mgcca_sensitivity")
 #'
-#' p <- plot(mgcca_block_profile(sens))
+#' p <- plot(mgccaBlockProfile(sens))
 #' class(p)
 #' @export
 #' @method plot mgcca_block_profile

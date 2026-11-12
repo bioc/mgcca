@@ -16,7 +16,7 @@ plotIndividuals(
 )
 }
 \arguments{
-\item{x}{an \code{mgcca} object (from \code{\link{mgcca_results}} or
+\item{x}{an \code{mgcca} object (from \code{\link{mgccaResults}} or
 \code{mgcca(collect = TRUE)}).}
 
 \item{group}{optional factor to colour individuals by. If it carries names
@@ -43,9 +43,9 @@ A \code{ggplot} object.
 }
 \description{
 Scatter plot of the shared canonical components \code{Y} (one
-  point per individual), optionally coloured by a grouping factor. A modern,
-  colourblind-safe replacement for \code{\link{plotInds}} that returns a
-  \code{ggplot} object you can further customise.
+  point per individual), optionally coloured by a grouping factor, in a
+  colourblind-safe palette. Returns a \code{ggplot} object you can further
+  customise.
 }
 \examples{
 data(cardiovascular)

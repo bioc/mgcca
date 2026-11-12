@@ -28,7 +28,7 @@
         datasets      = datasets,
         eig_values    = as.numeric(res$eig_values))
     # The results manifest records where the RESULTS live. The reliability API
-    # (mgcca_sensitivity / mgcca_block_profile / mgcca_stability) also needs the
+    # (mgccaSensitivity / mgccaBlockProfile / mgccaStability) also needs the
     # SOURCE blocks -- the sensitivity kernel reads them from HDF5 and stability
     # refits -- so the INPUT group must be recorded too, or a reloaded fit cannot
     # be used for anything that touches the data. Written here rather than assumed
@@ -69,20 +69,20 @@
 #'   by \code{\link{mgcca}}, using \emph{only} the file: it reads the provenance
 #'   manifest stored as native HDF5 attributes (method, lambda, route,
 #'   route_dual, nfac, datasets, eigenvalues, ...) and combines it with
-#'   \code{\link{mgcca_results}} (which reads the numeric blocks). No original R
+#'   \code{\link{mgccaResults}} (which reads the numeric blocks). No original R
 #'   session, descriptor list or \code{.rds} is needed -- the file is
 #'   self-describing.
 #'
-#'   If the file predates the manifest (no attributes), \code{mgcca_load} falls
+#'   If the file predates the manifest (no attributes), \code{mgccaLoad} falls
 #'   back to auto-discovering the table names from the \code{corsY} subgroups and
 #'   returns what it can, with the provenance fields set to \code{NA}.
 #'
 #' @param file Path to the HDF5 results file.
 #' @param group HDF5 group holding the results. Default \code{"FINAL_RESULTS"}.
 #'
-#' @return An object of class \code{"mgcca"} (see \code{\link{mgcca_results}}),
+#' @return An object of class \code{"mgcca"} (see \code{\link{mgccaResults}}),
 #'   with the reconstructed provenance descriptor on \code{attr(., "desc")}.
-#' @seealso \code{\link{mgcca}}, \code{\link{mgcca_results}}
+#' @seealso \code{\link{mgcca}}, \code{\link{mgccaResults}}
 #' @examples
 #' data(cardiovascular)
 #' ids <- Reduce(union, list(rownames(X1), rownames(X2), rownames(X3)))[1:100]
@@ -100,13 +100,13 @@
 #' rm(desc)
 #'
 #' ## Rebuilt from the file alone -- provenance included.
-#' fit <- mgcca_load(h5)
+#' fit <- mgccaLoad(h5)
 #' fit
 #' attr(fit, "desc")$method
 #' attr(fit, "desc")$lambda
 #' unlink(h5)
 #' @export
-mgcca_load <- function(file, group = "FINAL_RESULTS") {
+mgccaLoad <- function(file, group = "FINAL_RESULTS") {
     if (!is.character(file) || length(file) != 1L)
         stop("'file' must be a single HDF5 file path")
     if (!file.exists(file)) stop("HDF5 file not found: ", file)
@@ -151,7 +151,7 @@ mgcca_load <- function(file, group = "FINAL_RESULTS") {
                             else as.character(man$input_group),
             scale         = if (is.null(man$scale)) NA
                             else as.logical(as.integer(man$scale)))
-        # NB `input_group` stays NA when the fit predates it. mgcca_load() does NOT
+        # NB `input_group` stays NA when the fit predates it. mgccaLoad() does NOT
         # warn here: it is the general loader, and provenance of the INPUT blocks
         # only matters to the reliability functions. Warning every caller about a
         # field they will never use is noise, and it changed the behaviour of a
@@ -180,7 +180,7 @@ mgcca_load <- function(file, group = "FINAL_RESULTS") {
             scale       = NA)
     }
 
-    obj <- mgcca_results(desc)
+    obj <- mgccaResults(desc)
     attr(obj, "desc") <- desc
     obj
 }

@@ -43,12 +43,12 @@ files** through the
 scales from small tables to full-omics tables (hundreds of thousands of features)
 *without ever loading a table completely into memory* and without forming any
 variable-by-variable matrix; the results are written to the HDF5 file and can be
-pulled back into a compact R object for plotting with `mgcca_results()` (or
+pulled back into a compact R object for plotting with `mgccaResults()` (or
 `mgcca(..., collect = TRUE)`). **With `filename = NULL`** the same call fits
 *in memory* in pure R instead, for tables that fit in RAM -- no HDF5 file is
 written. The two backends return the same `"mgcca"` object; the in-memory fit is
-not written to disk, so it is not reloadable with `mgcca_load()` and the
-reliability analyses (`mgcca_sensitivity()`, `mgcca_stability()`), which read the
+not written to disk, so it is not reloadable with `mgccaLoad()` and the
+reliability analyses (`mgccaSensitivity()`, `mgccaStability()`), which read the
 source blocks from HDF5, require a file-backed fit.
 
 ## Related packages
@@ -244,24 +244,21 @@ all.equal(p, fit$pval.cor[["clinical"]][, 1])
 signif(head(p, 4), 3)
 ```
 
-## The two plotting families
+## Restyling the plots
 
 `plotIndividuals()`, `plotVariables()`, `plotLoadings()`, `plotAVE()`,
 `plotScree()`, `plotScores()` and `plotBiplot()` all return **ggplot** objects,
-so they can be restyled, composed or saved with the usual `ggplot2` verbs.
-`plotInds()` and `plotVars()` are the package's older **base-graphics**
-counterparts of the first two: they draw straight to the current device and take
-base graphical parameters, which is convenient inside a script that is already
-drawing with base graphics. They answer the same two questions, so there is no
-need to demonstrate both families in full.
+so they can be restyled, composed or saved with the usual `ggplot2` verbs. Here
+the LDL plot from above is drawn without its ellipses, given a subtitle, and has
+its legend moved below the panel:
 
-```{r cardio_base_inds, fig.width=6, fig.height=5}
-plotInds(fit, group = ldl_group)
+```{r cardio_restyle, fig.width=6, fig.height=5, fig.retina=1}
+g <- plotIndividuals(fit, group = ldl_group, ellipse = FALSE)
+g + ggplot2::labs(subtitle = "LDL category (NCEP ATP III cut-points)") +
+    ggplot2::theme(legend.position = "bottom")
 ```
 
-```{r cardio_base_vars, fig.width=6, fig.height=5}
-plotVars(fit, df = 2, nlab = 5)          # df = 2: the clinical table
-```
+`ggplot2::ggsave()` writes any of these plots to a file.
 
 # Saving and reloading results
 
@@ -275,14 +272,14 @@ so the results file is **self-describing**.
 
 Because of this, a finished analysis can be reopened later from the file alone --
 no need to keep the R session, a saved `.rds`, or even to remember how it was
-run. `mgcca_load()` reads the manifest and the numeric blocks and rebuilds the
+run. `mgccaLoad()` reads the manifest and the numeric blocks and rebuilds the
 full `"mgcca"` object:
 
 ```{r reload}
 # forget the in-memory object; everything needed is on disk
 rm(fit)
 
-fit <- mgcca_load(h5file)          # rebuilt straight from the HDF5 file
+fit <- mgccaLoad(h5file)          # rebuilt straight from the HDF5 file
 fit
 ```
 
@@ -304,12 +301,12 @@ plotIndividuals(fit, group = ldl_group)
 ```
 
 If you only need the numeric blocks (no provenance, no `"mgcca"` wrapper), the
-lower-level reader `mgcca_results()` returns them directly. It does not read the
+lower-level reader `mgccaResults()` returns them directly. It does not read the
 manifest, so it has to be told which tables to collect -- either by handing it
 the descriptor `mgcca(..., collect = FALSE)` returns, or by naming them:
 
 ```{r results_reader}
-res <- mgcca_results(h5file, datasets = names(X), outputs = "Y")
+res <- mgccaResults(h5file, datasets = names(X), outputs = "Y")
 dim(res$Y)
 identical(res$Y, fit$Y)      # same numbers, read back from the file
 ```
@@ -422,12 +419,12 @@ tabs[[1]][1, 1]
 
 Both tables have more variables than individuals, so the fit is penalized and
 needs a `lambda` per table. Rather than picking one by hand,
-`mgcca_select_lambda()` chooses it by held-out cross-block agreement: it splits
+`mgccaSelectLambda()` chooses it by held-out cross-block agreement: it splits
 the individuals into `K` folds, fits on each training part and measures how well
 the tables agree on the held-out individuals.
 
 ```{r acc_lambda, message=TRUE}
-sel <- mgcca_select_lambda(tabs, nfac = 2, K = 5, seed = 1)
+sel <- mgccaSelectLambda(tabs, nfac = 2, K = 5, seed = 1)
 sel
 ```
 
@@ -458,12 +455,12 @@ The overlap report in the summary is the design in one line: 46 of the 79
 individuals are shared by the two tables, and `alpha_jk` is that count over the
 union.
 
-The results are also on disk, and `mgcca_results()` reads them back without the
+The results are also on disk, and `mgccaResults()` reads them back without the
 `"mgcca"` wrapper. It does not read the provenance manifest, so it has to be
 told which tables to collect:
 
 ```{r acc_results}
-res <- mgcca_results(h5acc, datasets = names(tabs), outputs = c("Y", "AVE"))
+res <- mgccaResults(h5acc, datasets = names(tabs), outputs = c("Y", "AVE"))
 dim(res$Y)
 names(Filter(Negate(is.null), res))
 ```
@@ -491,13 +488,13 @@ plotScores(acc, table = 1, group = vital)
 plotBiplot(acc, table = 2, top = 6)
 ```
 
-`mgcca_associate()` makes the same question quantitative: it regresses each
+`mgccaAssociate()` makes the same question quantitative: it regresses each
 shared component on a phenotype and reports the variance explained, its p-value
 and a multiplicity-adjusted version.
 
 ```{r acc_assoc}
-assoc <- mgcca_associate(acc, list(stage = stage, vital = vital,
-                                   gender = gender))
+assoc <- mgccaAssociate(acc, list(stage = stage, vital = vital,
+                                  gender = gender))
 assoc
 ```
 
@@ -509,15 +506,15 @@ illustration of the reading, not a finding.
 
 ## Are the components themselves significant?
 
-`mgcca_permtest()` breaks the correspondence between individuals across tables
+`mgccaPermtest()` breaks the correspondence between individuals across tables
 and refits, giving a null distribution for the eigenvalues. It refits once per
 permutation, so the number of permutations sets the cost -- and also the
 resolution: the smallest attainable p-value is `1 / (nperm + 1)`.
 
 ```{r acc_permtest}
 set.seed(1)
-pt <- mgcca_permtest(tabs, nperm = 9, nfac = 2, method = "penalized",
-                     lambda = sel$lambda)
+pt <- mgccaPermtest(tabs, nperm = 9, nfac = 2, method = "penalized",
+                    lambda = sel$lambda)
 pt$p.value
 range(pt$null)
 ```
@@ -543,7 +540,7 @@ The table names of `newdata` must match the fit's, and each one must carry every
 variable used at fit time; tables the fit does not know are ignored.
 
 The HDF5 file is a temporary one here. A real analysis keeps it: it is what
-`mgcca_load()` reopens and what the reliability functions read.
+`mgccaLoad()` reopens and what the reliability functions read.
 
 ```{r acc_cleanup}
 BigDataStatMeth::hdf5_close_all()
@@ -553,7 +550,7 @@ unlink(h5acc)
 
 # Auditing the availability design before fitting
 
-Everything above starts from a fit. `mgcca_audit()` runs *before* one, and
+Everything above starts from a fit. `mgccaAudit()` runs *before* one, and
 answers a different kind of question: what does the availability design itself
 support? It reads who is present in which block -- presence and absence, never a
 data value -- and never calls `mgcca()`, so nothing a fit computes can move
@@ -586,7 +583,7 @@ compares it against the support counts descriptively. `strata` and `weights` are
 what *you* declare about the design, and are given in the audit's own row order.
 
 ```{r audit_run}
-audit <- mgcca_audit(avail, L = 2, strata = cohort, weights = avail_w)
+audit <- mgccaAudit(avail, L = 2, strata = cohort, weights = avail_w)
 audit
 ```
 
@@ -781,7 +778,7 @@ single edge and reaches the other blocks only through proteins.
 
 ## Auditing the object you are about to fit
 
-`mgcca_audit()` also takes the data object itself -- a list of blocks, a
+`mgccaAudit()` also takes the data object itself -- a list of blocks, a
 `MultiAssayExperiment`, or an HDF5 file -- and derives the availability table
 through the package's own readers, with the same union-of-IDs rule the estimator
 uses. Only the participant IDs are read; no block is materialised. Auditing the
@@ -790,7 +787,7 @@ actual analysis.
 
 On an HDF5-backed design, `save_hdf5 = TRUE` writes the audit into an
 `availability_audit` group of that same file, so the certificate travels with
-the data, and `mgcca_audit_load()` brings it back whole.
+the data, and `mgccaAuditLoad()` brings it back whole.
 
 ```{r audit_roundtrip}
 set.seed(1)
@@ -805,16 +802,16 @@ blocks <- list(
                        dimnames = list(ids[extra], paste0("met", 1:2))))
 
 h5_audit <- tempfile(fileext = ".h5")
-desc <- mgcca_import_hdf5(blocks, filename = h5_audit, overwriteFile = TRUE)
+desc <- mgccaImportHDF5(blocks, filename = h5_audit, overwriteFile = TRUE)
 
-stored <- mgcca_audit(desc, L = 2, strata = cohort, weights = avail_w,
-                      save_hdf5 = TRUE)
+stored <- mgccaAudit(desc, L = 2, strata = cohort, weights = avail_w,
+                     save_hdf5 = TRUE)
 
 # the availability table derived from the blocks is the one built by hand
 identical(unname(stored$table), unname(avail))
 
 # and the stored audit comes back whole
-identical(mgcca_audit_load(h5_audit), stored)
+identical(mgccaAuditLoad(h5_audit), stored)
 ```
 
 What is written is structured rather than opaque: the tables go in as datasets,
@@ -870,7 +867,7 @@ tables_list <- matrixChr2Num(tables_list, index = 1)
 ## Integrate the two layers
 
 ```{r tcga_run, eval=FALSE}
-sel <- mgcca_select_lambda(tables_list, nfac = 2, K = 5, seed = 1)
+sel <- mgccaSelectLambda(tables_list, nfac = 2, K = 5, seed = 1)
 
 fit <- mgcca(tables_list, filename = tempfile(fileext = ".h5"), nfac = 2,
              method = "penalized", lambda = sel$lambda,
@@ -925,7 +922,7 @@ knitr::include_graphics(c("figures/tcga_stage.png",
 ```
 
 ```{r tcga_assoc, eval=FALSE}
-mgcca_associate(fit, list(
+mgccaAssociate(fit, list(
   stage  = factor(mae$pathologic_stage),
   vital  = factor(mae$vital_status),
   gender = factor(mae$gender)))
@@ -972,7 +969,7 @@ knitr::include_graphics("figures/tcga_ave.png")
 
 If you only need the results on disk (no in-memory object), drop
 `collect = TRUE` and read them back later with
-`mgcca_results(h5file, datasets = names(tables_list))`.
+`mgccaResults(h5file, datasets = names(tables_list))`.
 
 ## Subsetting by genomic ranges
 
@@ -1008,7 +1005,7 @@ for (a in seq_along(sub_tables))
   rownames(sub_tables[[a]]) <- substr(rownames(sub_tables[[a]]), 1, 12)
 sub_tables <- matrixChr2Num(sub_tables, index = 1)
 
-sub_sel <- mgcca_select_lambda(sub_tables, nfac = 2, K = 5, seed = 1)
+sub_sel <- mgccaSelectLambda(sub_tables, nfac = 2, K = 5, seed = 1)
 fit.region <- mgcca(sub_tables, filename = tempfile(fileext = ".h5"),
                     nfac = 2, method = "penalized", lambda = sub_sel$lambda,
                     scores = TRUE, collect = TRUE)

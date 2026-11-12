@@ -47,9 +47,9 @@ This vignette covers the three functions that answer them:
 
 | function | question |
 |---|---|
-| `mgcca_sensitivity()` | does the query align with the subspace, and how much of that is carried by the grouping? |
-| `mgcca_block_profile()` | which blocks carry the sensitivity? |
-| `mgcca_stability()` | is the subspace reproducible under resampling? |
+| `mgccaSensitivity()` | does the query align with the subspace, and how much of that is carried by the grouping? |
+| `mgccaBlockProfile()` | which blocks carry the sensitivity? |
+| `mgccaStability()` | is the subspace reproducible under resampling? |
 
 ## Reading the numbers without the algebra {#reading}
 
@@ -111,7 +111,7 @@ And the practical point, which is the whole reason the layer exists:
 There is a sequence, and skipping to the middle of it is how results get
 overinterpreted.
 
-**Step 1 -- is the subspace itself trustworthy?** Run `mgcca_stability()` first. If
+**Step 1 -- is the subspace itself trustworthy?** Run `mgccaStability()` first. If
 the axes move substantially when you resample your own participants, nothing that
 follows should be interpreted: you would be reading a structure that a slightly
 different sample would not have produced. Section \@ref(is-the-subspace-reproducible)
@@ -140,7 +140,7 @@ AR <- function(x0, y0, x1, y1, lab = NULL)
            y = (y0 + y1)/2, label = lab, size = 2.7, colour = "grey30", hjust = 1)))
 sp <- 2.0
 ggplot2::ggplot() +
-  BOX(sp, 9.0, 5.4, "1.  Is the subspace stable?\nmgcca_stability()", pal[1]) +
+  BOX(sp, 9.0, 5.4, "1.  Is the subspace stable?\nmgccaStability()", pal[1]) +
   AR(sp - 1.4, 8.35, -4.0, 7.75, "no") + AR(sp, 8.35, sp, 7.75, "yes") +
   BOX(-4.0, 7.1, 4.0, "STOP\nnothing below\nis interpretable", "grey55", 2.8) +
   BOX(sp, 7.1, 5.4, "2.  Is T above the\nnoise floor?", pal[1]) +
@@ -190,7 +190,7 @@ participant-space algebra -- which is `n × n` in *individuals*, not variables -
 is done in RAM, where it belongs.
 
 **What these quantities are not.** They are first-order sensitivity coefficients
-of a fitted operator. They are not causal, and `mgcca_sensitivity()` is not a
+of a fitted operator. They are not causal, and `mgccaSensitivity()` is not a
 psychometric reliability coefficient. The word *reliability* names the framework;
 the functions take the narrower mathematical names.
 
@@ -260,7 +260,7 @@ Q <- cbind(LDL     = X2[cids, "LDL"],
            noise)
 rownames(Q) <- cids
 
-sens <- mgcca_sensitivity(fit, Q)
+sens <- mgccaSensitivity(fit, Q)
 sens
 ```
 
@@ -345,11 +345,11 @@ does not.
 ## Which data type is the finding coming from?
 
 ```{r cardio_profile}
-prof <- mgcca_block_profile(sens)
+prof <- mgccaBlockProfile(sens)
 prof
 ```
 
-`mgcca_block_profile()` **extracts**; it does not recompute. The block-level
+`mgccaBlockProfile()` **extracts**; it does not recompute. The block-level
 quantities come back from the same pass that produced the totals, so there is one
 route to them. Two independent routes would eventually disagree, and the
 disagreement would be silent.
@@ -421,12 +421,12 @@ present in some and absent from others -- the setting `mgcca` exists for, and th
 reason the availability weighting matters here rather than being a formality.
 
 All three blocks are wider than they are tall, so the fit is penalized and needs
-a `lambda` per block. `mgcca_select_lambda()` picks it by held-out cross-block
+a `lambda` per block. `mgccaSelectLambda()` picks it by held-out cross-block
 agreement instead of leaving it to be guessed, and says how sharply the choice
 is identified:
 
 ```{r acc_lambda, message=TRUE}
-sel <- mgcca_select_lambda(tabs, nfac = 2, K = 5, seed = 1)
+sel <- mgccaSelectLambda(tabs, nfac = 2, K = 5, seed = 1)
 sel
 ```
 
@@ -459,7 +459,7 @@ Q <- cbind(stage_score = score, replicate(5, rnorm(length(ids))))
 colnames(Q) <- c("stage_score", paste0("noise", 1:5))
 rownames(Q) <- ids
 
-sens_acc <- mgcca_sensitivity(acc, Q, group = stage)
+sens_acc <- mgccaSensitivity(acc, Q, group = stage)
 sens_acc
 ```
 
@@ -490,7 +490,7 @@ value means after seeing it.
 | if `R_between` were... | what it would be saying | what to do next |
 |---|---|---|
 | **below ~0.05** | the reading barely depends on the grouping at all | nothing further on this axis. Report the alignment; the grouping is not what is holding it up |
-| **around 0.1--0.3** | a real but minority share follows the grouping | check *which* blocks carry the between-group part (`mgcca_block_profile()`). If it concentrates in one assay, that assay's processing is the thing to look at |
+| **around 0.1--0.3** | a real but minority share follows the grouping | check *which* blocks carry the between-group part (`mgccaBlockProfile()`). If it concentrates in one assay, that assay's processing is the thing to look at |
 | **above ~0.5** | most of what holds the reading up is group structure | treat the alignment as a statement about the groups until shown otherwise. Re-run with the grouping residualised out via `covariates =`, and see what survives |
 | **high, and the grouping is technical** | plate, batch, centre, run date | this is the artefact case. Look at whether the batches are confounded with anything biological, and consider re-normalising before re-fitting |
 | **high, and the grouping is biological** | stage, tissue, treatment arm | this may be exactly the finding. But confirm the biological grouping is not itself confounded with a technical one -- samples of the same stage collected in the same period is a very common way for the two to become indistinguishable |
@@ -710,7 +710,7 @@ processing anomaly -- before the finding is reported as a property of the cohort
 
 # Would I get the same answer with a different sample? {#is-the-subspace-reproducible}
 
-`mgcca_stability()` refits on resamples and measures how far the subspace moves.
+`mgccaStability()` refits on resamples and measures how far the subspace moves.
 `"subsample"` needs no grouping; `"loco"` leaves out one level of `group` at a
 time -- the generic form of leave-one-cohort-out.
 
@@ -738,7 +738,7 @@ picking the flattering one.
 The cardiovascular fit has 646 individuals. Holding out 10% of them at a time:
 
 ```{r cardio_stab}
-stab_ok <- mgcca_stability(fit, B = 30, fraction = 0.90, seed = 1)
+stab_ok <- mgccaStability(fit, B = 30, fraction = 0.90, seed = 1)
 stab_ok
 ```
 
@@ -756,8 +756,8 @@ cat(sprintf(paste0(
 ## A result you cannot
 
 ```{r acc_stab}
-stab <- mgcca_stability(acc, method = "both", group = stage,
-                        B = 40, fraction = 0.632, seed = 1)
+stab <- mgccaStability(acc, method = "both", group = stage,
+                       B = 40, fraction = 0.632, seed = 1)
 stab
 ```
 
@@ -807,7 +807,7 @@ with everything else held fixed:
 
 ```{r sweep}
 sw <- do.call(rbind, lapply(c(0.632, 0.80, 0.90, 0.95), function(f) {
-  m <- mgcca_stability(fit, B = 20, fraction = f, seed = 1)$summary_metrics
+  m <- mgccaStability(fit, B = 20, fraction = f, seed = 1)$summary_metrics
   data.frame(fraction = f, worst_overlap = round(m$overlap_min, 4),
              median_overlap = round(m$overlap_median, 4),
              worst_rank_margin = round(m$rank_margin_min, 4))
@@ -842,7 +842,7 @@ does, but `"memory"` and `"hdf5"` force the choice. The backend that ran is
 recorded in the result, so a number is never ambiguous about how it was produced.
 
 ```{r backend, eval=FALSE}
-mgcca_sensitivity(acc, Q, group = stage, backend = "hdf5")
+mgccaSensitivity(acc, Q, group = stage, backend = "hdf5")
 ```
 
 `block_size` forces the out-of-core block size. Its normal value is `0` (let
@@ -855,8 +855,8 @@ Persistence is opt-in. An analysis function should not write to your file unaske
 particularly when the fit may be shared or read-only.
 
 ```{r store, eval=FALSE}
-sens_acc <- mgcca_sensitivity(acc, Q, group = stage,
-                              store = TRUE, store_name = "stage_sensitivity")
+sens_acc <- mgccaSensitivity(acc, Q, group = stage,
+                             store = TRUE, store_name = "stage_sensitivity")
 ```
 
 Results go under `RELIABILITY/<name>/` in the fit's own HDF5 file, with the same

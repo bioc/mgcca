@@ -63,12 +63,12 @@ test_that("mgcca() returns an mgcca object by default (collect = TRUE)", {
   expect_true(is.list(d) && !is.null(d$eig_values) && is.null(attr(d, "class")))
 })
 
-test_that("mgcca_associate() reports R2/p per component", {
+test_that("mgccaAssociate() reports R2/p per component", {
   fit <- an_fit()
   X <- an_X()
   g <- cut(X$clinical[, "LDL"][rownames(fit$Y)], c(-Inf, 130, Inf),
            c("normal", "high"))
-  a <- mgcca_associate(fit, list(LDL = g, glucose = X$clinical[, "Gluc"][rownames(fit$Y)]))
+  a <- mgccaAssociate(fit, list(LDL = g, glucose = X$clinical[, "Gluc"][rownames(fit$Y)]))
   expect_true(all(c("phenotype", "component", "R2", "p", "n", "p.adj") %in% names(a)))
   expect_equal(nrow(a), 4L)                       # 2 phenotypes x 2 components
   expect_true(all(a$R2 >= 0 & a$R2 <= 1))
@@ -87,10 +87,10 @@ test_that("predict() reproduces training scores and projects new individuals", {
   expect_error(predict(fit, newdata = list(nope = X$clinical)), "used at fit time")
 })
 
-test_that("mgcca_permtest() returns observed eigenvalues and p-values", {
+test_that("mgccaPermtest() returns observed eigenvalues and p-values", {
   # nperm is the number of REFITS, so it is the one knob that has to stay small;
   # 4 is enough for the shape and the 1/(nperm+1) floor the assertions are about.
-  pt <- mgcca_permtest(an_X(), filename = h5_tmp(), nperm = 4, method = "solve")
+  pt <- mgccaPermtest(an_X(), filename = h5_tmp(), nperm = 4, method = "solve")
   on.exit(try(BigDataStatMeth::hdf5_close_all(), silent = TRUE), add = TRUE)
   expect_length(pt$eigenvalues, 2L)
   expect_length(pt$p.value, 2L)

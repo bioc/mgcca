@@ -1,5 +1,5 @@
 # S3 methods that make an 'mgcca' object behave like a standard R model object
-# (as returned by mgcca_results() / mgcca(collect = TRUE)).
+# (as returned by mgccaResults() / mgcca(collect = TRUE)).
 
 #' Print an mgcca object
 #'
@@ -57,7 +57,7 @@ print.mgcca <- function(x, ...) {
     if (!is.null(x$scores))
         cat("  scores      : available (per table)\n")
     # An in-memory fit (mgcca(filename = NULL)) is not written to disk, so it
-    # cannot be reloaded with mgcca_load() and the reliability layer cannot run on
+    # cannot be reloaded with mgccaLoad() and the reliability layer cannot run on
     # it. File-backed fits print exactly as before (their desc has no backend).
     if (identical(attr(x, "desc")$backend, "memory"))
         cat("  backend     : in-memory fit -- not reloadable from a file\n")

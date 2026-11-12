@@ -50,7 +50,7 @@ mgcca_read_attrs_rcpp <- function(filename, group, dataset) {
 #'
 #' Returns the names of the objects (datasets and subgroups) directly under
 #' \code{group}, without depending on the rhdf5 package. Used by
-#' \code{mgcca_load} to auto-discover table names in files written before the
+#' \code{mgccaLoad} to auto-discover table names in files written before the
 #' provenance manifest existed.
 #'
 #' @param filename Path to the HDF5 file.
@@ -255,7 +255,7 @@ mgcca_lambda_gram_rcpp <- function(filename, group, datasets, chunk_cols, do_sca
 #' @param threads Optional thread count.
 #' @return A descriptor list (filename, datasets, nfac, m, eigenvalues, route,
 #'   route_dual, final_group). Results are written under \code{final_group}.
-#' @seealso \code{\link{mgcca}}, \code{\link{mgcca_results}}
+#' @seealso \code{\link{mgcca}}, \code{\link{mgccaResults}}
 #' @keywords internal
 mgcca_rcpp <- function(filename, in_group, datasets, nfac, inv_method, lambda = NULL, scores = FALSE, scale = TRUE, route = "auto", tmp_group = "MGCCA_TMP", final_group = "FINAL_RESULTS", threads = NULL) {
     .Call(`_mgcca_mgcca_rcpp`, filename, in_group, datasets, nfac, inv_method, lambda, scores, scale, route, tmp_group, final_group, threads)
@@ -334,7 +334,7 @@ reliability_gram_block <- function(filename, in_group, dataset, out_group, block
 
 #' Weighted operator, eigenbasis and per-block resolvents (reliability phase R2)
 #' @param balance If \code{TRUE}, weight each block's summand by its top-L
-#'   balancing weight before the sum (see \code{\link{mgcca_sensitivity}});
+#'   balancing weight before the sum (see \code{\link{mgccaSensitivity}});
 #'   if \code{FALSE}, every weight is one.
 #' @return A list with the operator \code{S}, its eigenbasis \code{V} and
 #'   eigenvalues \code{mu}, the availability weights \code{D}, the per-block

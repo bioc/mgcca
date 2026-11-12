@@ -1,5 +1,5 @@
 # =============================================================================
-# mgcca_select_lambda() -- the CV cross-block agreement guardrail (wave 2).
+# mgccaSelectLambda() -- the CV cross-block agreement guardrail (wave 2).
 #
 # The criterion under test is the one the thesis calibration establishes in
 # reliability/05_lambda_selection.md and implements in
@@ -68,19 +68,19 @@ sl_c2 <- function() {
 sl_grid <- c(1, 10, 100, 1000, 1e4, 1e5, 1e6)
 
 ## In this regime the CV curve falls monotonically in lambda over the whole grid,
-## so the best candidate sits on the LOWER edge and mgcca_select_lambda warns --
+## so the best candidate sits on the LOWER edge and mgccaSelectLambda warns --
 ## correctly -- about a boundary optimum. It is the same behaviour
 ## 05_lambda_selection.md records as its honest caveat for regime C2 (argmax-CV
 ## at the smallest grid point). Expected here, so it is suppressed at the call
 ## and asserted explicitly in the guardrail test below.
-sl_select <- function(...) suppressWarnings(mgcca_select_lambda(...))
+sl_select <- function(...) suppressWarnings(mgccaSelectLambda(...))
 
 
 ## ---- API shape --------------------------------------------------------------
 
-test_that("mgcca_select_lambda is exported and returns the documented object", {
-  expect_true(is.function(mgcca_select_lambda))
-  expect_true("mgcca_select_lambda" %in% getNamespaceExports("mgcca"))
+test_that("mgccaSelectLambda is exported and returns the documented object", {
+  expect_true(is.function(mgccaSelectLambda))
+  expect_true("mgccaSelectLambda" %in% getNamespaceExports("mgcca"))
 
   f  <- sl_c2()
   sel <- sl_select(f$tables, nfac = 2, lambda = sl_grid,
@@ -129,8 +129,8 @@ test_that("the selection is deterministic in the seed", {
 test_that("seeding is the caller's: the default is NULL and the stream survives", {
   # The default must not seed anything: a package function that seeds by default
   # replaces the RNG stream of whoever called it.
-  expect_null(formals(mgcca_select_lambda)$seed)
-  expect_null(formals(mgcca_stability)$seed)
+  expect_null(formals(mgccaSelectLambda)$seed)
+  expect_null(formals(mgccaStability)$seed)
 
   f <- sl_c2()
 
@@ -321,7 +321,7 @@ test_that("mgcca() penalized takes the lambda it is given, or computes one", {
 
   # (d) mgcca() has a `gamma` to set the strength of a COMPUTED penalty, but
   # still no selection machinery: choosing gamma by cross-validation stays
-  # mgcca_select_lambda()'s job.
+  # mgccaSelectLambda()'s job.
   expect_true("gamma" %in% names(formals(mgcca)))
   expect_equal(eval(formals(mgcca)$gamma), 1)
   expect_false(any(c("select_lambda", "lambda_grid", "rule", "K") %in%
@@ -330,18 +330,18 @@ test_that("mgcca() penalized takes the lambda it is given, or computes one", {
 
 test_that("bad input is refused, not guessed", {
   f <- sl_c2()
-  expect_error(mgcca_select_lambda(f$tables[1], nfac = 2, lambda = c(1, 10),
-                                   scale_matched = FALSE),
+  expect_error(mgccaSelectLambda(f$tables[1], nfac = 2, lambda = c(1, 10),
+                                 scale_matched = FALSE),
                "at least two")
-  expect_error(mgcca_select_lambda(f$tables, nfac = 2, lambda = c(-1, 1),
-                                   scale_matched = FALSE),
+  expect_error(mgccaSelectLambda(f$tables, nfac = 2, lambda = c(-1, 1),
+                                 scale_matched = FALSE),
                "positive")
-  expect_error(mgcca_select_lambda(f$tables, nfac = 0, lambda = c(1, 10),
-                                   scale_matched = FALSE),
+  expect_error(mgccaSelectLambda(f$tables, nfac = 0, lambda = c(1, 10),
+                                 scale_matched = FALSE),
                "nfac")
   unnamed <- unname(lapply(f$tables, function(m) { rownames(m) <- NULL; m }))
-  expect_error(mgcca_select_lambda(unnamed, nfac = 2, lambda = c(1, 10),
-                                   scale_matched = FALSE),
+  expect_error(mgccaSelectLambda(unnamed, nfac = 2, lambda = c(1, 10),
+                                 scale_matched = FALSE),
                "rownames")
 })
 
@@ -350,8 +350,8 @@ test_that("a boundary optimum is reported, never selected silently", {
   # a grid that stops before the CV curve turns over: the argmax lands on the
   # lower edge, which cv_crossblock_gamma's contract calls a boundary optimum.
   expect_warning(
-    sel <- mgcca_select_lambda(f$tables, nfac = 2, lambda = c(1e5, 1e6, 1e7),
-                               scale_matched = FALSE, K = 4, seed = 11),
+    sel <- mgccaSelectLambda(f$tables, nfac = 2, lambda = c(1e5, 1e6, 1e7),
+                             scale_matched = FALSE, K = 4, seed = 11),
     class = "mgcca_lambda_boundary")
   expect_identical(sel$status, "boundary_optimum")
 })

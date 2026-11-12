@@ -8,7 +8,7 @@ reliability_reference_fit(Glist, present, lambda, L, balance = FALSE)
 }
 \arguments{
 \item{balance}{If \code{TRUE}, weight each block's summand by its top-L
-balancing weight before the sum (see \code{\link{mgcca_sensitivity}});
+balancing weight before the sum (see \code{\link{mgccaSensitivity}});
 if \code{FALSE}, every weight is one.}
 }
 \value{

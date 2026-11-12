@@ -118,9 +118,9 @@ avail <- cbind(methylation = seq_along(ids) \%in\% 1:60,
                proteins    = rep(TRUE, length(ids)),
                metabolites = seq_along(ids) \%in\% 61:85)
 rownames(avail) <- ids
-a <- mgcca_audit(avail, L = 2,
-                 strata = rep(c("cohort A", "cohort B"), length.out = 85),
-                 weights = ifelse(seq_along(ids) \%in\% 1:60, 1, 3))
+a <- mgccaAudit(avail, L = 2,
+                strata = rep(c("cohort A", "cohort B"), length.out = 85),
+                weights = ifelse(seq_along(ids) \%in\% 1:60, 1, 3))
 
 # the curated composite (give it room: ~11 x 9 inches)
 panels <- plot(a)
@@ -136,5 +136,5 @@ plot(a, type = "patterns")
 plot(a, type = "graph", pair = c("methylation", "metabolites"))
 }
 \seealso{
-\code{\link{mgcca_audit}}
+\code{\link{mgccaAudit}}
 }

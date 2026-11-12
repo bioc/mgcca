@@ -58,6 +58,6 @@ A descriptor list (filename, datasets, nfac, m, eigenvalues, route,
 MGCCA over HDF5 (single-call C++ orchestrator)
 }
 \seealso{
-\code{\link{mgcca}}, \code{\link{mgcca_results}}
+\code{\link{mgcca}}, \code{\link{mgccaResults}}
 }
 \keyword{internal}

@@ -160,8 +160,8 @@ test_that("the memory backend reproduces the balanced reference", {
     fx <- bal_fixture()
     on.exit(BigDataStatMeth::hdf5_close_all(), add = TRUE)
     ref <- bal_reference(fx$tabs, fx$ids, fx$L)
-    s <- suppressMessages(mgcca_sensitivity(fx$fit, fx$query, group = fx$group,
-                                            backend = "memory"))
+    s <- suppressMessages(mgccaSensitivity(fx$fit, fx$query, group = fx$group,
+                                           backend = "memory"))
     bal_check(s, ref, fx, "memory")
     expect_identical(s$balancing$block, names(fx$tabs))
     expect_true(all(s$balancing$rank >= fx$L))
@@ -171,11 +171,11 @@ test_that("the HDF5 backend reproduces the balanced reference, blocked or not", 
     fx <- bal_fixture()
     on.exit(BigDataStatMeth::hdf5_close_all(), add = TRUE)
     ref <- bal_reference(fx$tabs, fx$ids, fx$L)
-    h <- suppressMessages(mgcca_sensitivity(fx$fit, fx$query, group = fx$group,
-                                            backend = "hdf5"))
+    h <- suppressMessages(mgccaSensitivity(fx$fit, fx$query, group = fx$group,
+                                           backend = "hdf5"))
     bal_check(h, ref, fx, "hdf5")
-    b <- suppressMessages(mgcca_sensitivity(fx$fit, fx$query, group = fx$group,
-                                            backend = "hdf5", block_size = 3L))
+    b <- suppressMessages(mgccaSensitivity(fx$fit, fx$query, group = fx$group,
+                                           backend = "hdf5", block_size = 3L))
     bal_check(b, ref, fx, "hdf5 blocked")
 })
 
@@ -184,8 +184,8 @@ test_that("a user-supplied ridge is balanced with that ridge", {
     on.exit(BigDataStatMeth::hdf5_close_all(), add = TRUE)
     lam <- c(0.5, 2, 7)
     ref <- bal_reference(fx$tabs, fx$ids, fx$L, lambda = lam)
-    s <- suppressMessages(mgcca_sensitivity(fx$fit, fx$query, group = fx$group,
-                                            lambda = lam, backend = "memory"))
+    s <- suppressMessages(mgccaSensitivity(fx$fit, fx$query, group = fx$group,
+                                           lambda = lam, backend = "memory"))
     bal_check(s, ref, fx, "user ridge")
     expect_identical(s$settings$lambda_source, "user")
 })
@@ -204,7 +204,7 @@ test_that("the layer agrees with the subspace refit kernel run from a file", {
     masks <- vapply(ref$present, as.integer, integer(length(fx$ids)))
     k <- mgcca:::reliability_subspace_fit(gfile, "G", nm, masks, fx$L, 1)
     expect_true(k$eligible)
-    s <- suppressMessages(mgcca_sensitivity(fx$fit, fx$query, backend = "memory"))
+    s <- suppressMessages(mgccaSensitivity(fx$fit, fx$query, backend = "memory"))
     BigDataStatMeth::hdf5_close_all()
     expect_lte(max(abs(s$settings$lambda - k$lambda) / k$lambda), BAL_TOL)
     expect_lte(max(abs(s$balancing$weight - k$w)), BAL_TOL)
@@ -215,11 +215,11 @@ test_that("the layer agrees with the subspace refit kernel run from a file", {
 test_that("the result and the print report the block weights", {
     fx <- bal_fixture()
     on.exit(BigDataStatMeth::hdf5_close_all(), add = TRUE)
-    s <- suppressMessages(mgcca_sensitivity(fx$fit, fx$query, backend = "memory"))
+    s <- suppressMessages(mgccaSensitivity(fx$fit, fx$query, backend = "memory"))
     expect_named(s$balancing, c("block", "ceiling", "weight", "rank"))
     expect_output(print(s), "balancing : top-L block weights")
     # the weights depend on the blocks only, never on the query
-    s2 <- suppressMessages(mgcca_sensitivity(fx$fit, -3 * fx$query, backend = "memory"))
+    s2 <- suppressMessages(mgccaSensitivity(fx$fit, -3 * fx$query, backend = "memory"))
     expect_identical(s2$balancing, s$balancing)
 })
 
@@ -233,8 +233,8 @@ test_that("a block whose summand cannot reach rank L is refused by name", {
                                   method = "penalized", lambda = c(1, 1)))
     BigDataStatMeth::hdf5_close_all()
     q <- stats::setNames(stats::rnorm(n), ids)
-    expect_error(suppressMessages(mgcca_sensitivity(fit, q, lambda = c(1, 1),
-                                                    backend = "memory")),
+    expect_error(suppressMessages(mgccaSensitivity(fit, q, lambda = c(1, 1),
+                                                   backend = "memory")),
                  "block 'one' cannot be balanced")
     # the refusal gives the held file back
     expect_null(mgcca:::.mgcca_held_file$path)

@@ -49,7 +49,7 @@ getSignif <- function(x, df=NA, pval.cut=0.05, ...){
 
   if(is.null(xx))
       stop("no p-values are available in 'x'. Collect them with ",
-           "mgcca_results(..., outputs = c(\"pval\", ...)), or leave ",
+           "mgccaResults(..., outputs = c(\"pval\", ...)), or leave ",
            "'outputs' at its default NULL, which collects everything")
 
   datasets <- names(xx)

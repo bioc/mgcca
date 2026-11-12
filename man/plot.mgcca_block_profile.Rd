@@ -23,8 +23,8 @@ Bar chart of \code{share_total}, the share of a query's
   carries most of it.
 }
 \examples{
-## A minimal stand-in for an ungrouped mgcca_sensitivity() result; see
-## mgcca_block_profile() for why the example does not fit one here.
+## A minimal stand-in for an ungrouped mgccaSensitivity() result; see
+## mgccaBlockProfile() for why the example does not fit one here.
 sens <- structure(
     list(by_block = data.frame(
              query = rep(c("age", "bmi"), each = 3),
@@ -38,9 +38,9 @@ sens <- structure(
          call = NULL),
     class = "mgcca_sensitivity")
 
-p <- plot(mgcca_block_profile(sens))
+p <- plot(mgccaBlockProfile(sens))
 class(p)
 }
 \seealso{
-\code{\link{mgcca_block_profile}}
+\code{\link{mgccaBlockProfile}}
 }

@@ -17,14 +17,14 @@ Called for its side effect (the profile is written to the console).
 }
 \description{
 Prints the per-query, per-block table built by
-  \code{\link{mgcca_block_profile}}, preceded by a one-line header with the
+  \code{\link{mgccaBlockProfile}}, preceded by a one-line header with the
   number of queries and blocks and the grouping the sensitivity was run with.
   When no grouping was supplied, a closing note says so: the between-group
   columns are undefined there, not missing.
 }
 \examples{
-## A minimal stand-in for an ungrouped mgcca_sensitivity() result; see
-## mgcca_block_profile() for why the example does not fit one here.
+## A minimal stand-in for an ungrouped mgccaSensitivity() result; see
+## mgccaBlockProfile() for why the example does not fit one here.
 sens <- structure(
     list(by_block = data.frame(
              query = rep(c("age", "bmi"), each = 3),
@@ -38,8 +38,8 @@ sens <- structure(
          call = NULL),
     class = "mgcca_sensitivity")
 
-print(mgcca_block_profile(sens))
+print(mgccaBlockProfile(sens))
 }
 \seealso{
-\code{\link{mgcca_block_profile}}
+\code{\link{mgccaBlockProfile}}
 }

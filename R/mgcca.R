@@ -54,9 +54,9 @@
 #'   different widths. The strength of that computed penalty is set by
 #'   \code{gamma}. The values actually used are reported with a message and
 #'   saved in the file's manifest, and they are the same numbers
-#'   \code{\link{mgcca_select_lambda}} reports for the same \code{gamma}. On the
+#'   \code{\link{mgccaSelectLambda}} reports for the same \code{gamma}. On the
 #'   file-backed path the computation reads each table in column chunks, so it
-#'   never holds a table in RAM; see \code{\link{mgcca_lambda_scale_hdf5}}.
+#'   never holds a table in RAM; see \code{\link{mgccaLambdaScaleHDF5}}.
 #' @param gamma How strong the \emph{computed} penalty should be, as a multiple
 #'   of each table's own scale: the penalty used is \eqn{\lambda_j = \gamma s_j}.
 #'   Default 1. Raise it to regularise harder, lower it to regularise less;
@@ -65,13 +65,13 @@
 #'   single absolute \eqn{\lambda} cannot do. It applies only when the penalty is
 #'   computed: with an explicit \code{lambda}, or with any method other than
 #'   \code{"penalized"}, there is nothing for it to scale and it is ignored with
-#'   a warning. Use \code{\link{mgcca_select_lambda}} to choose it by held-out
+#'   a warning. Use \code{\link{mgccaSelectLambda}} to choose it by held-out
 #'   cross-block agreement instead of by hand.
 #' @param scores If TRUE, also compute per-table weights and scores. A table's
 #'   scores are standardised over the individuals \emph{present in that table},
 #'   and individuals absent from it get \code{NA} (\code{NaN} in the HDF5 file)
 #'   rather than a score of zero. The returned weights carry that rescaling
-#'   (see \code{\link{mgcca_results}}). Only the shared components \code{Y}
+#'   (see \code{\link{mgccaResults}}). Only the shared components \code{Y}
 #'   are defined for every individual of the union.
 #' @param route Per-table algebra route: \code{"auto"} (default) picks per table
 #'   by \code{min(n, p)} (covariance \code{X'X} when \code{p < n}, Gram
@@ -81,7 +81,7 @@
 #' @param threads Optional thread count.
 #' @param overwrite If TRUE (default), overwrite the file/datasets on import.
 #' @param collect If TRUE (default), read the results back from HDF5 and return an
-#'   in-memory object of class \code{"mgcca"} (via \code{\link{mgcca_results}})
+#'   in-memory object of class \code{"mgcca"} (via \code{\link{mgccaResults}})
 #'   ready for \code{\link{plotIndividuals}} / \code{\link{plotVariables}} /
 #'   \code{\link{getSignif}}; the HDF5 descriptor is kept on its \code{"desc"}
 #'   attribute. With \code{collect = FALSE} the lightweight descriptor list is
@@ -97,19 +97,19 @@
 #'   the rest; what you do ask for is bit-for-bit identical to a full
 #'   collection, because the choice only changes what is read back, never what
 #'   was computed. Ignored when \code{collect = FALSE}. See
-#'   \code{\link{mgcca_results}}.
+#'   \code{\link{mgccaResults}}.
 #'
 #' @return With \code{collect = TRUE} (default), an object of class
-#'   \code{"mgcca"} (see \code{\link{mgcca_results}}); its descriptor is on
+#'   \code{"mgcca"} (see \code{\link{mgccaResults}}); its descriptor is on
 #'   \code{attr(., "desc")}. With \code{collect = FALSE} (file-backed only), the
 #'   descriptor list (\code{filename}, \code{datasets}, \code{nfac}, \code{m},
 #'   \code{eig_values}, \code{route}, ...); results still live in the file under
 #'   \code{FINAL_RESULTS}. An in-memory fit (\code{filename = NULL}) returns the
 #'   same-shaped \code{"mgcca"} object, with a descriptor that reports
 #'   \code{backend = "memory"} and \code{filename = NA}; such a fit is not written
-#'   to disk and is therefore not reloadable with \code{\link{mgcca_load}}, and
-#'   the reliability analyses (\code{\link{mgcca_sensitivity}},
-#'   \code{\link{mgcca_stability}}) require a file-backed fit.
+#'   to disk and is therefore not reloadable with \code{\link{mgccaLoad}}, and
+#'   the reliability analyses (\code{\link{mgccaSensitivity}},
+#'   \code{\link{mgccaStability}}) require a file-backed fit.
 #'
 #'   Tables need not share the same individuals: they are aligned on the union of
 #'   the row names. Per-table quantities are computed on the individuals a table
@@ -128,8 +128,8 @@
 #'   success. When that happens \code{mgcca} emits a warning of class
 #'   \code{"mgcca_degenerate_subspace"} recommending \code{method = "penalized"},
 #'   which restores the separation. The warning never changes or aborts the fit.
-#' @seealso \code{\link{mgcca_results}}, \code{\link{plotIndividuals}},
-#'   \code{\link{mgcca_import_hdf5}}, \code{\link{mgcca_rcpp}}
+#' @seealso \code{\link{mgccaResults}}, \code{\link{plotIndividuals}},
+#'   \code{\link{mgccaImportHDF5}}, \code{\link{mgcca_rcpp}}
 #' @examples
 #' data(cardiovascular)
 #' ids <- Reduce(union, list(rownames(X1), rownames(X2), rownames(X3)))[1:150]
@@ -148,7 +148,7 @@
 #' fit$AVE$AVE_outer_model
 #'
 #' ## The same call with a 'filename' runs out-of-core and leaves a
-#' ## self-describing HDF5 results file behind (see mgcca_load()).
+#' ## self-describing HDF5 results file behind (see mgccaLoad()).
 #' \donttest{
 #' h5 <- tempfile(fileext = ".h5")
 #' fit2 <- mgcca(X, filename = h5, nfac = 2, method = "penalized",
@@ -206,9 +206,9 @@ mgcca <- function(x, filename = NULL, group = "MGCCA_IN", datasets = NULL, nfac 
     # memory. Scaling (if requested) is done out-of-core by mgcca_rcpp before
     # getK, so it applies uniformly whatever the input type -- including inputs
     # that are already an HDF5 file.
-    desc <- mgcca_import_hdf5(x, filename = filename, group = group,
-                              datasets = datasets, overwriteFile = overwrite,
-                              overwriteDataset = overwrite)
+    desc <- mgccaImportHDF5(x, filename = filename, group = group,
+                            datasets = datasets, overwriteFile = overwrite,
+                            overwriteDataset = overwrite)
 
     # The computed penalty, once the tables are in the file and before anything
     # consumes lambda: `lambda` below is what the fit uses AND what the manifest
@@ -252,7 +252,7 @@ mgcca <- function(x, filename = NULL, group = "MGCCA_IN", datasets = NULL, nfac 
         .mgcca_warn_degenerate(res$eigen, as.integer(nfac))
 
     # Persist the provenance manifest as native HDF5 attributes so the results
-    # file is self-describing and reloadable via mgcca_load() without this
+    # file is self-describing and reloadable via mgccaLoad() without this
     # session. Done whether or not we collect, so collect = FALSE files carry it.
     .mgcca_write_manifest(res, method = method, lambda = lambda,
                           input_group = desc$group, scale = scale)
@@ -265,16 +265,16 @@ mgcca <- function(x, filename = NULL, group = "MGCCA_IN", datasets = NULL, nfac 
     res$input_group <- desc$group
     res$scale       <- isTRUE(scale)
     # The penalty actually used, given or computed. The manifest saves it and
-    # mgcca_load() rebuilds `desc$lambda` from there, so a fresh fit that did
+    # mgccaLoad() rebuilds `desc$lambda` from there, so a fresh fit that did
     # not carry it was the one descriptor shape that disagreed with a reloaded
-    # one -- and a caller refitting in a loop (mgcca_permtest) had no way to
+    # one -- and a caller refitting in a loop (mgccaPermtest) had no way to
     # reuse a computed penalty instead of recomputing it every time.
     res$lambda      <- if (inv == 2L) lambda else NULL
 
     if (!isTRUE(collect))
         return(res)
 
-    obj <- mgcca_results(res, outputs = outputs)
+    obj <- mgccaResults(res, outputs = outputs)
     attr(obj, "desc") <- res
     obj
 }

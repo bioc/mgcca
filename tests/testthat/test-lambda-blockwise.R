@@ -1,5 +1,5 @@
 # =============================================================================
-# mgcca_lambda_scale_hdf5() -- the scale-matched block scale accumulated over
+# mgccaLambdaScaleHDF5() -- the scale-matched block scale accumulated over
 # HDF5 column chunks, against the package's own dense rule.
 #
 # WHAT IS BEING ASSERTED, AND WHY IT IS A TOLERANCE AND NOT AN IDENTITY. The
@@ -24,7 +24,7 @@ h5_cleanup_on_exit()
 ## ---- fixture: write a named list of matrices to a fresh HDF5 file ----------
 lb_write <- function(tabs) {
     h5 <- h5_tmp()
-    desc <- mgcca_import_hdf5(tabs, filename = h5, overwriteFile = TRUE)
+    desc <- mgccaImportHDF5(tabs, filename = h5, overwriteFile = TRUE)
     desc
 }
 
@@ -61,8 +61,8 @@ test_that("the chunked scale matches the dense rule, wide block included", {
     desc <- lb_write(tabs)
 
     den <- lb_dense(tabs)
-    got <- mgcca_lambda_scale_hdf5(desc$filename, desc$group, desc$datasets,
-                                   chunk_cols = 512L)
+    got <- mgccaLambdaScaleHDF5(desc$filename, desc$group, desc$datasets,
+                                chunk_cols = 512L)
 
     expect_named(got$s, desc$datasets)
     expect_true(all(is.finite(got$s)))
@@ -79,8 +79,8 @@ test_that("the chunked scale matches the dense rule, wide block included", {
     # lambda is gamma * s, and gamma may be per block
     expect_equal(unname(got$lambda), unname(got$s))
     g <- c(0.5, 2, 3)
-    got2 <- mgcca_lambda_scale_hdf5(desc$filename, desc$group, desc$datasets,
-                                    gamma = g, chunk_cols = 512L)
+    got2 <- mgccaLambdaScaleHDF5(desc$filename, desc$group, desc$datasets,
+                                 gamma = g, chunk_cols = 512L)
     expect_equal(unname(got2$lambda), unname(g * got2$s))
 })
 
@@ -91,8 +91,8 @@ test_that("the scale is invariant to the chunk size", {
 
     widths <- c(1L, 13L, 512L, 4999L, 5000L, 10000L)   # includes >= p
     S <- vapply(widths, function(w)
-        mgcca_lambda_scale_hdf5(desc$filename, desc$group, desc$datasets,
-                                chunk_cols = w)$s,
+        mgccaLambdaScaleHDF5(desc$filename, desc$group, desc$datasets,
+                             chunk_cols = w)$s,
         numeric(length(desc$datasets)))
 
     # global over the declared set: largest spread across widths, per block,
@@ -104,8 +104,8 @@ test_that("the scale is invariant to the chunk size", {
                 paste(widths, collapse = ", "), inv, TOL_INVAR))
 
     # a chunk at least as wide as the block is a single chunk
-    one <- mgcca_lambda_scale_hdf5(desc$filename, desc$group, desc$datasets,
-                                   chunk_cols = 10000L)
+    one <- mgccaLambdaScaleHDF5(desc$filename, desc$group, desc$datasets,
+                                chunk_cols = 10000L)
     expect_true(all(one$details$n_chunks == 1))
     expect_equal(one$details$chunk_cols, one$details$p)
     # and still within tolerance of the dense rule
@@ -129,8 +129,8 @@ test_that("constant and non-finite columns are dropped exactly as the dense rule
     tabs <- list(const_exact = a, const_fp = b, has_na = d, nearconst = e)
     desc <- lb_write(tabs)
 
-    got <- mgcca_lambda_scale_hdf5(desc$filename, desc$group, desc$datasets,
-                                   chunk_cols = 7L)
+    got <- mgccaLambdaScaleHDF5(desc$filename, desc$group, desc$datasets,
+                                chunk_cols = 7L)
     den <- lb_dense(tabs)
 
     # every scale is finite: the rule drops the offending column rather than
@@ -149,9 +149,8 @@ test_that("constant and non-finite columns are dropped exactly as the dense rule
     # One column each: the exactly constant one, the one holding an NA, and --
     # because sd_tol is 1e-8 and not machine epsilon -- the column that is
     # constant only in floating point (sd 0 here) and the near-constant one
-    # (sd ~9e-15). The driver-level rule of script 129, which has no sd_tol,
-    # keeps the last two; the package's rule drops them, and this route follows
-    # the package.
+    # (sd ~9e-15). A keep rule with no sd_tol at all would keep the last two;
+    # the package's rule drops them, and this route follows the package.
     expect_equal(unname(got_dropped[c("const_exact", "const_fp", "has_na",
                                       "nearconst")]), c(1, 1, 1, 1))
     expect_equal(unname(got$details$n_kept), rep(29, 4))
@@ -161,7 +160,7 @@ test_that("constant and non-finite columns are dropped exactly as the dense rule
 test_that("the kept/dropped margin against sd_tol is reported", {
     tabs <- lb_tables(n = 40L)
     desc <- lb_write(tabs)
-    got <- mgcca_lambda_scale_hdf5(desc$filename, desc$group, desc$datasets)
+    got <- mgccaLambdaScaleHDF5(desc$filename, desc$group, desc$datasets)
 
     # Nothing here is anywhere near the threshold, which is the point: the
     # diagnostic says so per run instead of it being assumed.
@@ -179,8 +178,8 @@ test_that("scale = FALSE reproduces the dense rule's unscaled branch", {
     desc <- lb_write(tabs)
 
     den <- lb_dense(tabs, do_scale = FALSE)
-    got <- mgcca_lambda_scale_hdf5(desc$filename, desc$group, desc$datasets,
-                                   scale = FALSE, chunk_cols = 2L)
+    got <- mgccaLambdaScaleHDF5(desc$filename, desc$group, desc$datasets,
+                                scale = FALSE, chunk_cols = 2L)
     expect_lt(lb_rel(got$s, den[desc$datasets]), TOL_DENSE)
     # no column is dropped on the unscaled branch
     expect_true(all(got$details$n_dropped == 0))
@@ -192,9 +191,9 @@ test_that("rank_tol reaches the rank the way the dense rule does", {
     tabs <- lb_tables()[c("rankdef", "narrow")]
     desc <- lb_write(tabs)
     for (rt in c(1e-8, 1e-2)) {
-        got <- mgcca_lambda_scale_hdf5(desc$filename, desc$group,
-                                       desc$datasets, rank_tol = rt,
-                                       chunk_cols = 9L)
+        got <- mgccaLambdaScaleHDF5(desc$filename, desc$group,
+                                    desc$datasets, rank_tol = rt,
+                                    chunk_cols = 9L)
         den <- lb_dense(tabs, rank_tol = rt)
         expect_lt(lb_rel(got$s, den[desc$datasets]), TOL_DENSE)
     }
@@ -206,24 +205,24 @@ test_that("bad arguments are refused", {
     desc <- lb_write(tabs)
     f <- desc$filename; g <- desc$group; d <- desc$datasets
 
-    expect_error(mgcca_lambda_scale_hdf5(file.path(tempdir(), "no-such.h5")),
+    expect_error(mgccaLambdaScaleHDF5(file.path(tempdir(), "no-such.h5")),
                  "does not exist")
-    expect_error(mgcca_lambda_scale_hdf5(f, g, d, chunk_cols = 0),
+    expect_error(mgccaLambdaScaleHDF5(f, g, d, chunk_cols = 0),
                  "positive integer")
-    expect_error(mgcca_lambda_scale_hdf5(f, g, d, chunk_cols = NA),
+    expect_error(mgccaLambdaScaleHDF5(f, g, d, chunk_cols = NA),
                  "positive integer")
-    expect_error(mgcca_lambda_scale_hdf5(f, g, d, sd_tol = -1),
+    expect_error(mgccaLambdaScaleHDF5(f, g, d, sd_tol = -1),
                  "non-negative")
-    expect_error(mgcca_lambda_scale_hdf5(f, g, d, rank_tol = -1),
+    expect_error(mgccaLambdaScaleHDF5(f, g, d, rank_tol = -1),
                  "non-negative")
-    expect_error(mgcca_lambda_scale_hdf5(f, g, d, gamma = c(1, 2, 3)),
+    expect_error(mgccaLambdaScaleHDF5(f, g, d, gamma = c(1, 2, 3)),
                  "one value per table")
     for (bad in list(0, -1, Inf, NA_real_, c(1, 0), "1", numeric(0)))
-        expect_error(mgcca_lambda_scale_hdf5(f, g, d, gamma = bad),
+        expect_error(mgccaLambdaScaleHDF5(f, g, d, gamma = bad),
                      "finite positive")
-    expect_error(mgcca_lambda_scale_hdf5(f, g, "not_a_table"),
+    expect_error(mgccaLambdaScaleHDF5(f, g, "not_a_table"),
                  "not in the file")
-    expect_error(mgcca_lambda_scale_hdf5(f, "NO_SUCH_GROUP", d),
+    expect_error(mgccaLambdaScaleHDF5(f, "NO_SUCH_GROUP", d),
                  "not in the file")
 })
 
@@ -237,7 +236,7 @@ test_that("a block with no usable column is refused, not silently scaled", {
                  dimnames = list(ids, sprintf("w%d", 1:4)))
     desc <- lb_write(list(flat = flat, ok = ok))
     expect_error(
-        mgcca_lambda_scale_hdf5(desc$filename, desc$group, desc$datasets),
+        mgccaLambdaScaleHDF5(desc$filename, desc$group, desc$datasets),
         "no column with non-zero variance")
 })
 
@@ -252,21 +251,21 @@ test_that("it reads a file mgcca itself holds open", {
     withr::defer(mgcca:::.mgcca_rel_release(ctx))
     ctx$handle <- mgcca:::.mgcca_rel_hold(ctx$file)
 
-    held <- mgcca_lambda_scale_hdf5(desc$filename, desc$group, desc$datasets,
-                                    chunk_cols = 5L)
+    held <- mgccaLambdaScaleHDF5(desc$filename, desc$group, desc$datasets,
+                                 chunk_cols = 5L)
     expect_true(all(is.finite(held$s)))
     expect_lt(lb_rel(held$s, lb_dense(tabs)[desc$datasets]), TOL_DENSE)
 
     # The listing (datasets = NULL) is mgcca's own too, so it also goes through
     # while the handle is held, and it finds the same tables.
-    listed <- mgcca_lambda_scale_hdf5(desc$filename, desc$group,
-                                      chunk_cols = 5L)
+    listed <- mgccaLambdaScaleHDF5(desc$filename, desc$group,
+                                   chunk_cols = 5L)
     expect_setequal(names(listed$s), desc$datasets)
     expect_lt(lb_rel(listed$s[desc$datasets], held$s[desc$datasets]), TOL_INVAR)
 
     mgcca:::.mgcca_rel_release(ctx)
     # once released, the listing route agrees with the named-datasets route
-    auto <- mgcca_lambda_scale_hdf5(desc$filename, desc$group, chunk_cols = 5L)
+    auto <- mgccaLambdaScaleHDF5(desc$filename, desc$group, chunk_cols = 5L)
     expect_lt(lb_rel(auto$s[desc$datasets], held$s[desc$datasets]), TOL_INVAR)
 })
 
@@ -279,9 +278,9 @@ test_that("datasets = NULL lists the tables, not the hidden dimnames", {
     raw <- mgcca:::mgcca_list_group_rcpp(desc$filename, desc$group)
     expect_true(any(startsWith(raw, ".")))
 
-    auto  <- mgcca_lambda_scale_hdf5(desc$filename, desc$group, chunk_cols = 5L)
-    named <- mgcca_lambda_scale_hdf5(desc$filename, desc$group, desc$datasets,
-                                     chunk_cols = 5L)
+    auto  <- mgccaLambdaScaleHDF5(desc$filename, desc$group, chunk_cols = 5L)
+    named <- mgccaLambdaScaleHDF5(desc$filename, desc$group, desc$datasets,
+                                  chunk_cols = 5L)
     expect_setequal(names(auto$s), desc$datasets)
     expect_false(any(startsWith(names(auto$s), ".")))
     expect_equal(auto$s[desc$datasets], named$s[desc$datasets], tolerance = 0)
@@ -337,7 +336,7 @@ test_that("one lambda is recycled to every table on the file-backed path", {
     expect_length(one$lambda, J)
     expect_equal(unname(one$lambda), rep(0.5, J))
     expect_identical(one$eig_values, vec$eig_values)
-    expect_identical(mgcca_results(one)$Y, mgcca_results(vec)$Y)
+    expect_identical(mgccaResults(one)$Y, mgccaResults(vec)$Y)
 })
 
 
@@ -370,7 +369,7 @@ test_that("an absent lambda is computed in column chunks for a file-backed fit",
                 rel, TOL_DENSE))
 
     # and the manifest saved what the fit ran with, so a reload agrees
-    back <- mgcca_load(h5)
+    back <- mgccaLoad(h5)
     expect_equal(unname(attr(back, "desc")$lambda[names(fb$lambda)]),
                  unname(fb$lambda), tolerance = 1e-12)
 })
@@ -442,11 +441,11 @@ test_that("gamma scales the computed penalty on both routes", {
 })
 
 
-test_that("the computed penalty is what mgcca_select_lambda() reports for that gamma", {
+test_that("the computed penalty is what mgccaSelectLambda() reports for that gamma", {
     tabs <- lb_fit_tables(n = 40L)
     grid <- c(0.5, 1, 2)
     sel <- suppressWarnings(suppressMessages(
-        mgcca_select_lambda(tabs, nfac = 2, gamma = grid, K = 3, seed = 7)))
+        mgccaSelectLambda(tabs, nfac = 2, gamma = grid, K = 3, seed = 7)))
 
     # lambda_by_candidate is the selector's own outer(grid, s_full): row g is
     # the penalty it would report at that gamma. mgcca() must land on it.
@@ -490,19 +489,19 @@ test_that("an invalid gamma is refused", {
 })
 
 
-test_that("mgcca_permtest() resolves the penalty once, not per permutation", {
+test_that("mgccaPermtest() resolves the penalty once, not per permutation", {
     tabs <- lb_fit_tables(n = 30L)
     # One message, from the observed fit: the permutations reuse its penalty
     # instead of each recomputing an identical one.
     expect_message(
-        pt <- mgcca_permtest(tabs, filename = h5_tmp(), nperm = 2, nfac = 2),
+        pt <- mgccaPermtest(tabs, filename = h5_tmp(), nperm = 2, nfac = 2),
         "scale-matched")
     expect_length(pt$p.value, length(pt$eigenvalues))
     expect_true(all(pt$p.value > 0 & pt$p.value <= 1))
 })
 
 
-test_that("mgcca_permtest() at gamma != 1 builds its null at the observed penalty", {
+test_that("mgccaPermtest() at gamma != 1 builds its null at the observed penalty", {
     tabs <- lb_fit_tables(n = 30L)
     s <- getFromNamespace(".mgcca_lambda_scale", "mgcca")(tabs)
 
@@ -511,19 +510,19 @@ test_that("mgcca_permtest() at gamma != 1 builds its null at the observed penalt
     # or every permutation would warn that gamma is ignored.
     h5 <- h5_tmp()
     expect_message(
-        pt <- mgcca_permtest(tabs, filename = h5, nperm = 2, nfac = 2,
-                             gamma = 3),
+        pt <- mgccaPermtest(tabs, filename = h5, nperm = 2, nfac = 2,
+                            gamma = 3),
         "gamma = 3")
     expect_length(pt$p.value, length(pt$eigenvalues))
 
     # the observed fit really used gamma * s, and the manifest says so
-    back <- mgcca_load(h5)
+    back <- mgccaLoad(h5)
     expect_lt(lb_rel(attr(back, "desc")$lambda[names(tabs)], 3 * s), TOL_DENSE)
 
     # no warning escaped from the permutation refits
     expect_no_warning(
-        mgcca_permtest(tabs, filename = h5_tmp(), nperm = 2, nfac = 2,
-                       gamma = 3) |> suppressMessages())
+        mgccaPermtest(tabs, filename = h5_tmp(), nperm = 2, nfac = 2,
+                      gamma = 3) |> suppressMessages())
 })
 
 

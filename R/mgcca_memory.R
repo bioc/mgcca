@@ -280,7 +280,7 @@
 }
 
 ## Early, explicit refusal for the reliability layer on an in-memory fit. It is
-## called at the very top of mgcca_sensitivity() / mgcca_stability() so the frozen
+## called at the very top of mgccaSensitivity() / mgccaStability() so the frozen
 ## logic of those functions is left untouched; a file-backed fit passes straight
 ## through (backend is NULL for those). The reliability kernels read the SOURCE
 ## blocks from HDF5, which an in-memory fit does not have.

@@ -1,8 +1,8 @@
 Package: mgcca
 Type: Package
 Title: Generalized Canonical Correlation Analysis with Missing Individuals
-Version: 0.99.7
-Date: 2026-10-22
+Version: 0.99.8
+Date: 2026-11-12
 Authors@R:
   c(  person( given = "Dolors",
               family = "Pelegri-Siso",
@@ -31,11 +31,8 @@ Imports: BigDataStatMeth (>= 2.0.6),
     withr,
     Rcpp (>= 1.0.6),
     ggplot2 (>= 3.4.0),
-    ggthemes,
     impute,
     SummarizedExperiment,
-    graphics,
-    grDevices,
     grid,
     methods,
     stats,
@@ -47,11 +44,9 @@ Suggests: BiocStyle,
     testthat (>= 3.0.0),
     MultiAssayExperiment,
     Biobase,
-    wordcloud,
     GenomicRanges,
     IRanges,
     BiocGenerics,
-    made4,
     RSpectra,
     GenomeInfoDb,
     curatedTCGAData,

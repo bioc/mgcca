@@ -223,16 +223,16 @@ test_that("predict() projects new individuals through an in-memory fit", {
 })
 
 # ---- 6. reliability layer refuses an in-memory fit -------------------------
-test_that("mgcca_sensitivity / mgcca_stability refuse an in-memory fit", {
+test_that("mgccaSensitivity / mgccaStability refuse an in-memory fit", {
   cb <- mem_combos[[1]]
   if (!file.exists(fixture_path(cb$fx))) skip("fixture not shipped")
   tabs <- readRDS(fixture_path(cb$fx))
   lam  <- rep(cb$lam, length(tabs))
   fit  <- suppressWarnings(mgcca(tabs, filename = NULL, method = cb$m, lambda = lam,
                                  scores = TRUE, collect = TRUE))
-  expect_error(mgcca_stability(fit), "HDF5-backed source blocks")
+  expect_error(mgccaStability(fit), "HDF5-backed source blocks")
   expect_error(
-    mgcca_sensitivity(fit, query = setNames(rnorm(nrow(fit$Y)), rownames(fit$Y))),
+    mgccaSensitivity(fit, query = setNames(rnorm(nrow(fit$Y)), rownames(fit$Y))),
     "HDF5-backed source blocks")
 })
 

@@ -30,7 +30,7 @@ flowchart TD
     B -->|"p &ge; n"| D["Gram / dual route<br/>(p &gt;&gt; n)"]
     C --> E["Shared components Y<br/>+ scores, correlations, AVE"]
     D --> E
-    E --> F[("HDF5 results + provenance<br/>reload via mgcca_load()")]
+    E --> F[("HDF5 results + provenance<br/>reload via mgccaLoad()")]
 
     classDef input fill:#DCE6F1,stroke:#4C78A8,color:#22384f;
     classDef proc  fill:#DEEDDA,stroke:#54A24B,color:#2c4a25;
@@ -93,7 +93,7 @@ Results are written to the HDF5 file together with a self-describing provenance
 manifest, so a finished analysis can be reopened later **from the file alone**:
 
 ```r
-fit <- mgcca_load("analysis.h5")   # no R session or .rds needed
+fit <- mgccaLoad("analysis.h5")   # no R session or .rds needed
 ```
 
 ## Features
@@ -106,10 +106,10 @@ fit <- mgcca_load("analysis.h5")   # no R session or .rds needed
   (~485k features) never forms a `p x p` matrix.
 - **Inversion methods:** `solve`, `penalized` (per-table `lambda`),
   `geninv`/`ginv` (Moore–Penrose).
-- **Reload & provenance:** `mgcca_load()` rebuilds the full object from the HDF5
-  file; `mgcca_results()` collects the numeric blocks.
-- **Downstream analysis:** `mgcca_associate()` (component ~ phenotype R²/p),
-  `mgcca_permtest()`, and out-of-sample `predict()`.
+- **Reload & provenance:** `mgccaLoad()` rebuilds the full object from the HDF5
+  file; `mgccaResults()` collects the numeric blocks.
+- **Downstream analysis:** `mgccaAssociate()` (component ~ phenotype R²/p),
+  `mgccaPermtest()`, and out-of-sample `predict()`.
 - **Plots (ggplot2):** `plotIndividuals()` (with confidence ellipses),
   `plotVariables()` (correlation circle), `plotLoadings()`, `plotScores()`,
   `plotBiplot()`, `plotAVE()`, `plotScree()`.

@@ -1,13 +1,13 @@
-# mgcca_import_hdf5: raw round-trip of values, orientation and dimnames.
+# mgccaImportHDF5: raw round-trip of values, orientation and dimnames.
 
-test_that("mgcca_import_hdf5 round-trips values and dimnames", {
+test_that("mgccaImportHDF5 round-trips values and dimnames", {
   skip_if_not(file.exists(fixture_path("mgcca_subset.rds")),
               "fixtures not shipped with the built package")
 
   fix  <- readRDS(fixture_path("mgcca_subset.rds"))
   h5   <- tempfile(fileext = ".h5")
-  desc <- mgcca_import_hdf5(fix, filename = h5, group = "MGCCA_IN",
-                            overwriteFile = TRUE, overwriteDataset = TRUE)
+  desc <- mgccaImportHDF5(fix, filename = h5, group = "MGCCA_IN",
+                          overwriteFile = TRUE, overwriteDataset = TRUE)
   on.exit(BigDataStatMeth::hdf5_close_all(), add = TRUE)
 
   expect_setequal(desc$datasets, names(fix))

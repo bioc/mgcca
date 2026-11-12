@@ -96,7 +96,7 @@ cd4 <- X$cells[, "CD4T"]
 grp <- stats::setNames(
     ifelse(cd4 > stats::median(cd4), "CD4T high", "CD4T low"),
     rownames(X$cells))
-sens <- mgcca_sensitivity(fit, query = bmi, group = grp)
+sens <- mgccaSensitivity(fit, query = bmi, group = grp)
 
 ## Where the sensitivity sits, block by block, with the between-group part
 ## drawn inside the total rather than beside it.
@@ -111,6 +111,6 @@ plot(sens, type = "map")
 plot(sens, type = "individuals", top_n = 8)
 }
 \seealso{
-\code{\link{mgcca_sensitivity}}, which produces the object plotted
+\code{\link{mgccaSensitivity}}, which produces the object plotted
   here.
 }

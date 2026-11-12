@@ -76,9 +76,9 @@ scale-matched value is the one that is comparable across tables of very
 different widths. The strength of that computed penalty is set by
 \code{gamma}. The values actually used are reported with a message and
 saved in the file's manifest, and they are the same numbers
-\code{\link{mgcca_select_lambda}} reports for the same \code{gamma}. On the
+\code{\link{mgccaSelectLambda}} reports for the same \code{gamma}. On the
 file-backed path the computation reads each table in column chunks, so it
-never holds a table in RAM; see \code{\link{mgcca_lambda_scale_hdf5}}.}
+never holds a table in RAM; see \code{\link{mgccaLambdaScaleHDF5}}.}
 
 \item{gamma}{How strong the \emph{computed} penalty should be, as a multiple
 of each table's own scale: the penalty used is \eqn{\lambda_j = \gamma s_j}.
@@ -88,14 +88,14 @@ same amount of regularisation in every table however wide they are, which a
 single absolute \eqn{\lambda} cannot do. It applies only when the penalty is
 computed: with an explicit \code{lambda}, or with any method other than
 \code{"penalized"}, there is nothing for it to scale and it is ignored with
-a warning. Use \code{\link{mgcca_select_lambda}} to choose it by held-out
+a warning. Use \code{\link{mgccaSelectLambda}} to choose it by held-out
 cross-block agreement instead of by hand.}
 
 \item{scores}{If TRUE, also compute per-table weights and scores. A table's
 scores are standardised over the individuals \emph{present in that table},
 and individuals absent from it get \code{NA} (\code{NaN} in the HDF5 file)
 rather than a score of zero. The returned weights carry that rescaling
-(see \code{\link{mgcca_results}}). Only the shared components \code{Y}
+(see \code{\link{mgccaResults}}). Only the shared components \code{Y}
 are defined for every individual of the union.}
 
 \item{route}{Per-table algebra route: \code{"auto"} (default) picks per table
@@ -109,7 +109,7 @@ for all tables. The Gram/dual route is the one that scales to \code{p >> n}
 \item{overwrite}{If TRUE (default), overwrite the file/datasets on import.}
 
 \item{collect}{If TRUE (default), read the results back from HDF5 and return an
-in-memory object of class \code{"mgcca"} (via \code{\link{mgcca_results}})
+in-memory object of class \code{"mgcca"} (via \code{\link{mgccaResults}})
 ready for \code{\link{plotIndividuals}} / \code{\link{plotVariables}} /
 \code{\link{getSignif}}; the HDF5 descriptor is kept on its \code{"desc"}
 attribute. With \code{collect = FALSE} the lightweight descriptor list is
@@ -126,20 +126,20 @@ previous version. A character subset of \code{"Y"},
 the rest; what you do ask for is bit-for-bit identical to a full
 collection, because the choice only changes what is read back, never what
 was computed. Ignored when \code{collect = FALSE}. See
-\code{\link{mgcca_results}}.}
+\code{\link{mgccaResults}}.}
 }
 \value{
 With \code{collect = TRUE} (default), an object of class
-  \code{"mgcca"} (see \code{\link{mgcca_results}}); its descriptor is on
+  \code{"mgcca"} (see \code{\link{mgccaResults}}); its descriptor is on
   \code{attr(., "desc")}. With \code{collect = FALSE} (file-backed only), the
   descriptor list (\code{filename}, \code{datasets}, \code{nfac}, \code{m},
   \code{eig_values}, \code{route}, ...); results still live in the file under
   \code{FINAL_RESULTS}. An in-memory fit (\code{filename = NULL}) returns the
   same-shaped \code{"mgcca"} object, with a descriptor that reports
   \code{backend = "memory"} and \code{filename = NA}; such a fit is not written
-  to disk and is therefore not reloadable with \code{\link{mgcca_load}}, and
-  the reliability analyses (\code{\link{mgcca_sensitivity}},
-  \code{\link{mgcca_stability}}) require a file-backed fit.
+  to disk and is therefore not reloadable with \code{\link{mgccaLoad}}, and
+  the reliability analyses (\code{\link{mgccaSensitivity}},
+  \code{\link{mgccaStability}}) require a file-backed fit.
 
   Tables need not share the same individuals: they are aligned on the union of
   the row names. Per-table quantities are computed on the individuals a table
@@ -188,7 +188,7 @@ head(fit$Y)
 fit$AVE$AVE_outer_model
 
 ## The same call with a 'filename' runs out-of-core and leaves a
-## self-describing HDF5 results file behind (see mgcca_load()).
+## self-describing HDF5 results file behind (see mgccaLoad()).
 \donttest{
 h5 <- tempfile(fileext = ".h5")
 fit2 <- mgcca(X, filename = h5, nfac = 2, method = "penalized",
@@ -198,6 +198,6 @@ unlink(h5)
 }
 }
 \seealso{
-\code{\link{mgcca_results}}, \code{\link{plotIndividuals}},
-  \code{\link{mgcca_import_hdf5}}, \code{\link{mgcca_rcpp}}
+\code{\link{mgccaResults}}, \code{\link{plotIndividuals}},
+  \code{\link{mgccaImportHDF5}}, \code{\link{mgcca_rcpp}}
 }

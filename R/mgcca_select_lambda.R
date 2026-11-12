@@ -153,7 +153,7 @@
 
 ## The tail of the rule: a block's Gram in, its scale s_j out. Factored out of
 ## .mgcca_lambda_scale() so that the in-memory route above and the chunked
-## HDF5 route of mgcca_lambda_scale_hdf5() run THE SAME tail -- the one the
+## HDF5 route of mgccaLambdaScaleHDF5() run THE SAME tail -- the one the
 ## thesis calibration validated -- on their respective Grams, instead of one
 ## being a reimplementation of the other. The values and the error message are
 ## the ones .mgcca_lambda_scale() has always produced.
@@ -361,8 +361,8 @@
 #' ## analysis uses the wider default grid; this one is sized for the example.
 #' ## The folds are drawn at random, so a seed is passed to make the selection
 #' ## reproducible; without one the draw comes from the session's own stream.
-#' sel <- mgcca_select_lambda(X, nfac = 2, gamma = c(0.01, 0.1, 1), K = 3,
-#'                            seed = 1)
+#' sel <- mgccaSelectLambda(X, nfac = 2, gamma = c(0.01, 0.1, 1), K = 3,
+#'                          seed = 1)
 #' sel
 #'
 #' ## The whole candidate trace, not only the winner: report the near-optimal
@@ -372,11 +372,11 @@
 #' ## The selected penalty is what mgcca(method = "penalized") then takes.
 #' fit <- mgcca(X, nfac = 2, method = "penalized", lambda = sel$lambda)
 #' @export
-mgcca_select_lambda <- function(x, nfac = 2, gamma = NULL, lambda = NULL,
-                                scale_matched = TRUE, K = 5, seed = NULL,
-                                rule = c("argmax", "1se"), scale = TRUE,
-                                min_pair = NULL, rank_tol = 1e-8,
-                                sd_tol = 1e-8) {
+mgccaSelectLambda <- function(x, nfac = 2, gamma = NULL, lambda = NULL,
+                              scale_matched = TRUE, K = 5, seed = NULL,
+                              rule = c("argmax", "1se"), scale = TRUE,
+                              min_pair = NULL, rank_tol = 1e-8,
+                              sd_tol = 1e-8) {
 
     cl   <- match.call()
     rule <- match.arg(rule)
@@ -531,13 +531,13 @@ mgcca_select_lambda <- function(x, nfac = 2, gamma = NULL, lambda = NULL,
 #' Print a lambda selection
 #'
 #' @param x an \code{mgcca_lambda} object, from
-#'   \code{\link{mgcca_select_lambda}}.
+#'   \code{\link{mgccaSelectLambda}}.
 #' @param ... ignored.
 #' @return \code{x}, invisibly. Called for the one-screen summary it writes to
 #'   the console: the criterion, the selected penalty, the held-out cross-block
 #'   agreement that justifies it, and how many candidates lie within one
 #'   standard error of the best.
-#' @seealso \code{\link{mgcca_select_lambda}}
+#' @seealso \code{\link{mgccaSelectLambda}}
 #' @examples
 #' data(cardiovascular, package = "mgcca")
 #' ids <- Reduce(union, list(rownames(X1), rownames(X2), rownames(X3)))[1:150]
@@ -549,8 +549,8 @@ mgcca_select_lambda <- function(x, nfac = 2, gamma = NULL, lambda = NULL,
 #' }
 #' X <- list(methylation = mk(X1, 1:20), clinical = mk(X2), cells = mk(X3))
 #'
-#' sel <- mgcca_select_lambda(X, nfac = 2, gamma = c(0.01, 0.1, 1), K = 3,
-#'                            seed = 1)
+#' sel <- mgccaSelectLambda(X, nfac = 2, gamma = c(0.01, 0.1, 1), K = 3,
+#'                          seed = 1)
 #' print(sel)
 #' @export
 #' @method print mgcca_lambda

@@ -28,11 +28,6 @@ For a chosen table, draws the correlation of each variable with
   circle). Only the \code{top} variables with the largest correlation radius
   are drawn as labelled arrows, so the plot stays readable even for
   omics-scale tables; the rest are shown as faint points.
-
-  Use \code{plotVariables} to look at a single table in detail, as a
-  \pkg{ggplot2} correlation circle, and \code{\link{plotVars}} to compare
-  several tables at once -- one base-graphics panel per table, drawn through
-  \pkg{made4}, with the same chosen variables highlighted in each.
 }
 \examples{
 data(cardiovascular)
@@ -54,6 +49,5 @@ plotVariables(fit, table = "clinical", top = 6)
 plotVariables(fit, table = 1, top = 5)
 }
 \seealso{
-\code{\link{plotVars}}, \code{\link{plotIndividuals}},
-  \code{\link{getSignif}}
+\code{\link{plotIndividuals}}, \code{\link{getSignif}}
 }

@@ -40,7 +40,7 @@
 #' measures stability of the estimated subspace to the sample, not to the whole
 #' preprocessing pipeline.
 #'
-#' @param x A fitted \code{"mgcca"} object; see \code{\link{mgcca_sensitivity}}
+#' @param x A fitted \code{"mgcca"} object; see \code{\link{mgccaSensitivity}}
 #'   for what it must carry. For the \code{print} and \code{plot} methods
 #'   documented below, an object of class \code{"mgcca_stability"} instead.
 #' @param method \code{"subsample"} (default), \code{"loco"}, or \code{"both"}.
@@ -60,8 +60,8 @@
 #'   plan is archived in the result either way, so a run can be reproduced from
 #'   what it returns even when no seed was given.
 #' @param lambda,gamma Ridge for the layer's operator; see
-#'   \code{\link{mgcca_sensitivity}}.
-#' @param backend,block_size,threads As in \code{\link{mgcca_sensitivity}}.
+#'   \code{\link{mgccaSensitivity}}.
+#' @param backend,block_size,threads As in \code{\link{mgccaSensitivity}}.
 #' @param store If \code{TRUE}, persist under \code{RELIABILITY/}. Default
 #'   \code{FALSE}: an analysis function should not write to a user's file
 #'   unasked.
@@ -85,12 +85,12 @@
 #'   \item{settings, groups, provenance, call}{the record of how it was
 #'     produced. When \code{store = TRUE} a \code{storage} element records the
 #'     HDF5 group written to.}
-#' @seealso \code{\link{mgcca_sensitivity}} for the query-based companion, and
-#'   \code{\link{mgcca_select_lambda}} -- instability is a diagnostic at a
+#' @seealso \code{\link{mgccaSensitivity}} for the query-based companion, and
+#'   \code{\link{mgccaSelectLambda}} -- instability is a diagnostic at a
 #'   chosen penalty, never the way to choose one.
 #' @examples
 #' ## A small three-block slice of the shipped cohort. As for
-#' ## mgcca_sensitivity(), the fit must be file-backed: the resampling refits
+#' ## mgccaSensitivity(), the fit must be file-backed: the resampling refits
 #' ## the operator from the SOURCE blocks in HDF5.
 #' data(cardiovascular, package = "mgcca")
 #' ids <- Reduce(union, list(rownames(X1), rownames(X2), rownames(X3)))[1:120]
@@ -113,7 +113,7 @@
 #'     ifelse(cd4 > stats::median(cd4), "CD4T high", "CD4T low"),
 #'     rownames(X$cells))
 #'
-#' stab <- mgcca_stability(fit, method = "both", group = grp, B = 3, seed = 1)
+#' stab <- mgccaStability(fit, method = "both", group = grp, B = 3, seed = 1)
 #' stab
 #'
 #' ## Read the overlap next to the rank margin: a high overlap on a low margin
@@ -126,13 +126,13 @@
 #' summary(stab)
 #' plot(stab)
 #' @export
-mgcca_stability <- function(x, method = c("subsample", "loco", "both"),
-                            group = NULL, strata = NULL, B = 200L,
-                            fraction = 0.632, seed = NULL,
-                            lambda = NULL, gamma = 1,
-                            store_name = "stability",
-                            backend = c("auto", "memory", "hdf5"),
-                            block_size = 0L, store = FALSE, threads = NULL) {
+mgccaStability <- function(x, method = c("subsample", "loco", "both"),
+                           group = NULL, strata = NULL, B = 200L,
+                           fraction = 0.632, seed = NULL,
+                           lambda = NULL, gamma = 1,
+                           store_name = "stability",
+                           backend = c("auto", "memory", "hdf5"),
+                           block_size = 0L, store = FALSE, threads = NULL) {
     cl <- match.call()
     .mgcca_refuse_memory(x)          # in-memory fits have no source blocks on disk
     method <- match.arg(method); backend <- match.arg(backend)
@@ -253,13 +253,13 @@ mgcca_stability <- function(x, method = c("subsample", "loco", "both"),
 #'   comparison is well posed rather than whether the components are separated.
 #'
 #' @param object An object of class \code{"mgcca_stability"}, as returned by
-#'   \code{mgcca_stability()}.
+#'   \code{mgccaStability()}.
 #' @param ... Ignored.
 #' @return \code{print()} returns its argument invisibly and
 #'   \code{summary()} returns \code{object} invisibly, both being called for
 #'   what they write to the console; \code{plot()} returns a \code{ggplot}
 #'   object, which draws when printed.
-#' @rdname mgcca_stability
+#' @rdname mgccaStability
 #' @export
 print.mgcca_stability <- function(x, ...) {
     s <- x$settings
@@ -288,7 +288,7 @@ print.mgcca_stability <- function(x, ...) {
 #' @details \code{summary()} prints all of that and then the ten worst
 #'   resamples, ordered by overlap, so the tail of the distribution is what is
 #'   shown rather than its head.
-#' @rdname mgcca_stability
+#' @rdname mgccaStability
 #' @export
 summary.mgcca_stability <- function(object, ...) {
     print(object)
@@ -305,7 +305,7 @@ summary.mgcca_stability <- function(object, ...) {
 #'   barely present in the shared participants. Resamples whose refit failed
 #'   carry no overlap and are absent from the panel; they stay in
 #'   \code{$resamples} with their reason.
-#' @rdname mgcca_stability
+#' @rdname mgccaStability
 #' @export
 plot.mgcca_stability <- function(x, ...) {
     d <- x$resamples[x$resamples$ok, , drop = FALSE]

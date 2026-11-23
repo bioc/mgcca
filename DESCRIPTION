@@ -1,7 +1,7 @@
 Package: mgcca
 Type: Package
 Title: Generalized Canonical Correlation Analysis with Missing Individuals
-Version: 0.99.8
+Version: 1.0.0
 Date: 2026-11-12
 Authors@R:
   c(  person( given = "Dolors",
